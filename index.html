@@ -2556,7 +2556,7 @@
 fetch("https://3cb916d3-8881-49e9-b5af-e016e817f599-00-eybkay35zx30.spock.replit.dev/products")
   .then(res => res.json())
   .then(data => {
-    console.log(data);
+    console.log("DATA:", data);
 
     const grid = document.getElementById("grid");
     grid.innerHTML = "";
@@ -2566,10 +2566,9 @@ fetch("https://3cb916d3-8881-49e9-b5af-e016e817f599-00-eybkay35zx30.spock.replit
 
       grid.innerHTML += `
         <div style="border:1px solid #ccc; padding:10px; margin:10px;">
-          <img src="${p.url}" width="100"><br>
+          <img src="${p.url}" width="120"><br>
           <h3>${p.name}</h3>
           <p>ราคา: ${p.price}</p>
-          <button onclick="buyItem('${key}')">ซื้อ</button>
         </div>
       `;
     });
