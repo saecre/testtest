@@ -1,0 +1,2580 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title id="siteTitleTag">DotFight Ultimate V3.8 - Orange Edition (Pro+)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        :root {
+            --primary: #FF8C00;
+            --primary-light: #fff3e0;
+            --success: #2ecc71;
+            --danger: #ff4757;
+            --dark: #2f3542;
+            --white: #ffffff;
+            --glass: rgba(255, 255, 255, 0.98);
+            --shadow: 0 10px 30px rgba(255, 140, 0, 0.15);
+            --bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            --safe-top: env(safe-area-inset-top);
+            --safe-bottom: env(safe-area-inset-bottom);
+        }
+
+        * { 
+            margin: 0;
+            padding: 0; box-sizing: border-box; 
+            font-family: 'Kanit', sans-serif; 
+            -webkit-tap-highlight-color: transparent; 
+        }
+
+        body { 
+            background-color: #fffaf5;
+            color: var(--dark); 
+            overflow-x: hidden;
+            padding-top: var(--safe-top);
+            padding-bottom: var(--safe-bottom);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #e67e00; }
+
+        /* Notification Badge Animation */
+        .notif-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            width: 18px;
+            height: 18px;
+            background: var(--danger);
+            color: white;
+            border-radius: 50%;
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: pulse-badge 2s infinite;
+            border: 2px solid white;
+            font-weight: bold;
+        }
+        
+        @keyframes pulse-badge {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 71, 87, 0.7); }
+            70% { transform: scale(1.1); box-shadow: 0 0 0 10px rgba(255, 71, 87, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 71, 87, 0); }
+        }
+
+        @keyframes windowOpen {
+            0% { transform: scale(0.5) translateY(100px);
+            opacity: 0; }
+            100% { transform: scale(1) translateY(0);
+            opacity: 1; }
+        }
+        @keyframes windowClose {
+            0% { transform: scale(1);
+            opacity: 1; }
+            100% { transform: scale(0.5) translateY(100px);
+            opacity: 0; }
+        }
+
+        @keyframes popupSlideIn {
+            0% { 
+                transform: translateY(-100px) scale(0.8);
+                opacity: 0; 
+            }
+            100% { 
+                transform: translateY(0) scale(1);
+                opacity: 1; 
+            }
+        }
+        @keyframes popupSlideOut {
+            0% { 
+                transform: translateY(0) scale(1);
+                opacity: 1; 
+            }
+            100% { 
+                transform: translateY(-100px) scale(0.8);
+                opacity: 0; 
+            }
+        }
+        @keyframes overlayFadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes overlayFadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+
+        /* Full Screen Modal Styles */
+        .fullscreen-modal {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #fffaf5;
+            z-index: 6000;
+            display: none;
+            flex-direction: column;
+            animation: windowOpen 0.4s var(--bounce);
+        }
+        .fullscreen-modal.active {
+            display: flex;
+        }
+        .fm-header {
+            background: white;
+            padding: 20px 30px;
+            box-shadow: var(--shadow);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px solid var(--primary);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .fm-title {
+            font-size: 1.5rem;
+            color: var(--primary);
+            font-weight: 600;
+        }
+        .fm-close-btn {
+            background: #f0f0f0;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .fm-close-btn:hover {
+            background: var(--danger);
+            color: white;
+            transform: rotate(90deg);
+        }
+        .fm-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 30px;
+            max-width: 800px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .smooth-entry { animation: windowOpen 0.5s var(--bounce) forwards; }
+        .smooth-exit { animation: windowClose 0.4s ease-in forwards; }
+        .swal2-container { z-index: 1000000 !important; }
+
+        #announcementOverlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 3000000; 
+            display: none; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center;
+            backdrop-filter: blur(8px);
+            animation: overlayFadeIn 0.3s ease-out forwards;
+        }
+        #announcementOverlay.closing {
+            animation: overlayFadeOut 0.3s ease-out forwards;
+        }
+        .announcement-box {
+            background: white;
+            border-radius: 20px;
+            max-width: 450px;
+            width: 90%;
+            overflow: hidden;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.3);
+            position: relative;
+            animation: popupSlideIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+        #announcementOverlay.closing .announcement-box {
+            animation: popupSlideOut 0.4s ease-in forwards;
+        }
+        .announcement-header {
+            background: linear-gradient(135deg, var(--primary) 0%, #ff6b00 100%);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .announcement-header h3 {
+            color: white;
+            font-size: 1.1rem;
+            margin: 0;
+        }
+        .announcement-close {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .announcement-close:hover {
+            background: rgba(255,255,255,0.4);
+            transform: rotate(90deg);
+        }
+        .announcement-image {
+            width: 100%;
+            max-height: 350px;
+            object-fit: cover;
+            display: block;
+        }
+        .announcement-footer {
+            padding: 15px 20px;
+            background: #fafafa;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .announcement-footer input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: var(--primary);
+        }
+        .announcement-footer label {
+            font-size: 0.85rem;
+            color: #666;
+            cursor: pointer;
+        }
+
+        #successOverlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(255,255,255,0.98);
+            z-index: 2000000; display: none; flex-direction: column; align-items: center; justify-content: center;
+            backdrop-filter: blur(10px);
+        }
+        .checkmark-svg { width: 120px; height: 120px; animation: popIn 0.5s var(--bounce); }
+        .checkmark-circle { stroke-dasharray: 166; stroke-dashoffset: 166; stroke-width: 3; stroke: var(--success); fill: none;
+        animation: stroke 0.6s forwards; }
+        .checkmark-check { stroke-dasharray: 48; stroke-dashoffset: 48; stroke: var(--success);
+        stroke-width: 5; fill: none; animation: stroke 0.3s 0.6s forwards; }
+        @keyframes stroke { 100% { stroke-dashoffset: 0; } }
+        @keyframes popIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+        nav {
+            display: flex;
+            justify-content: space-between; align-items: center;
+            padding: 0 6%; background: var(--white); height: 85px;
+            position: sticky; top: 0; z-index: 1000;
+            box-shadow: 0 4px 20px rgba(255, 140, 0, 0.1);
+            border-bottom: 3px solid var(--primary);
+            padding-top: var(--safe-top);
+            height: calc(85px + var(--safe-top));
+        }
+        .logo { font-size: 2.2rem; font-weight: 600; color: var(--primary); cursor: pointer;
+        text-shadow: 1px 1px 0px #fff; }
+        .nav-links { display: flex; gap: 10px; list-style: none; }
+        .nav-links li { cursor: pointer; font-weight: 400; color: #666;
+        padding: 8px 15px; border-radius: 12px; transition: var(--transition); font-size: 0.95rem; }
+        .nav-links li:hover, .nav-links li.active { color: var(--primary);
+        background: var(--primary-light); transform: translateY(-2px); }
+        
+        .auth-zone { display: flex; gap: 12px; align-items: center; z-index: 1001; position: relative; }
+        .btn { padding: 12px 25px; border-radius: 12px;
+        border: none; font-weight: 600; cursor: pointer; transition: var(--transition); text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 8px; -webkit-user-select: none; user-select: none; }
+        .btn-login { background: #f0f0f0; color: #333; }
+        .btn-reg { background: var(--primary); color: white; box-shadow: 0 4px 15px rgba(255,140,0,0.3); }
+        .btn-admin { background: var(--dark); color: #ff9f43; border: 1px solid #ff9f43; position: relative; overflow: visible; }
+        .btn-logout { background: var(--danger); color: white; }
+        .btn:hover { transform: translateY(-3px) scale(1.05); filter: brightness(1.05); }
+        .btn:active { transform: scale(0.95); }
+
+        .btn-edit-sm { 
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white; padding: 8px 14px; font-size: 0.85rem; border-radius: 8px; 
+            border: none; cursor: pointer; transition: var(--transition);
+            box-shadow: 0 4px 10px rgba(79, 172, 254, 0.3); display: inline-flex; align-items: center; justify-content: center;
+        }
+        .btn-del-sm { 
+            background: linear-gradient(135deg, #ff5f6d 0%, #ffc371 100%);
+            color: white; padding: 8px 14px; font-size: 0.85rem; border-radius: 8px; 
+            border: none; cursor: pointer; transition: var(--transition);
+            box-shadow: 0 4px 10px rgba(255, 95, 109, 0.3); display: inline-flex; align-items: center; justify-content: center;
+        }
+        .btn-manage-sm { 
+            background: linear-gradient(135deg, #a8e063 0%, #56ab2f 100%);
+            color: white; padding: 8px 14px; font-size: 0.85rem; border-radius: 8px; 
+            border: none; cursor: pointer; transition: var(--transition);
+            box-shadow: 0 4px 10px rgba(86, 171, 47, 0.3); display: inline-flex; align-items: center; justify-content: center;
+        }
+        .btn-edit-sm:hover, .btn-del-sm:hover, .btn-manage-sm:hover { transform: scale(1.1); filter: contrast(1.1); }
+
+        .top-credit { background: var(--primary); color: white; padding: 8px 15px;
+        border-radius: 10px; font-weight: 600; font-size: 1rem; display: none; }
+
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            background-color: white;
+            min-width: 180px;
+            box-shadow: var(--shadow);
+            border-radius: 12px;
+            z-index: 1002;
+            overflow: hidden;
+            border: 1px solid #eee;
+            margin-top: 10px;
+        }
+        .dropdown-content a {
+            color: black;
+            padding: 15px 20px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: 0.2s;
+            font-size: 15px;
+        }
+        .dropdown-content a:hover, .dropdown-content a:active { background-color: var(--primary-light); color: var(--primary); }
+        .dropdown-content a i { margin-right: 12px; width: 20px; text-align: center; }
+        
+        .dropdown.show .dropdown-content { display: block; animation: windowOpen 0.3s var(--bounce); }
+
+        .shortcut-container { position: fixed;
+        top: 50%; left: 0; transform: translateY(-50%); z-index: 9999; 
+        }
+        .shortcut-trigger { width: 50px;
+        height: 70px; background: var(--primary); color: white; border-radius: 0 15px 15px 0; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;
+        box-shadow: 4px 0 15px rgba(0,0,0,0.1); cursor: pointer; transition: var(--transition); }
+        .shortcut-menu { position: absolute;
+        top: 0; left: 60px; background: white; border-radius: 15px; width: 200px; box-shadow: var(--shadow); padding: 10px; display: none; flex-direction: column; gap: 5px;
+        border: 1px solid var(--primary-light); animation: windowOpen 0.3s var(--bounce); }
+        .shortcut-menu.show { display: flex; }
+        .shortcut-item { padding: 12px; border-radius: 10px; cursor: pointer; display: flex; align-items: center;
+        gap: 10px; color: #555; transition: 0.2s; font-size: 0.95rem; }
+        .shortcut-item:hover { background: var(--primary-light); color: var(--primary); }
+
+        .banner-container { width: 100%; max-width: 1200px; height: 400px;
+        margin: 20px auto; border-radius: 25px; overflow: hidden; position: relative; box-shadow: var(--shadow);
+        }
+        .banner-wrapper { display: flex; width: 400%; height: 100%;
+        transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
+        .banner-slide { width: 25%; height: 100%; background-size: cover; background-position: center; 
+            display: flex; align-items: center; justify-content: center; color: white; font-size: 2rem; text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+        /* Fallback background gradients for banners */
+        .banner-slide:nth-child(1) { background: linear-gradient(135deg, #FF8C00 0%, #FF6B6B 100%); }
+        .banner-slide:nth-child(2) { background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%); }
+        .banner-slide:nth-child(3) { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+        .banner-slide:nth-child(4) { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+
+        .section { display: none; padding: 30px 6%; }
+        .section.active { display: block; animation: windowOpen 0.5s var(--bounce) forwards; }
+
+        .stats-dashboard { 
+            display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; 
+            margin: 30px auto 50px; max-width: 1200px; 
+        }
+        .stat-box { 
+            background: white; padding: 25px; border-radius: 20px; 
+            width: 220px; text-align: center; box-shadow: var(--shadow); 
+            border-bottom: 5px solid var(--primary); transition: 0.3s; position: relative; overflow: hidden;
+        }
+        .stat-box::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 5px; background: var(--primary); }
+        .stat-box:hover { transform: translateY(-5px); }
+        .stat-box i { font-size: 2.5rem; color: var(--primary); margin-bottom: 10px; }
+        .stat-box h2 { font-size: 1.8rem; color: var(--dark); margin: 0; font-weight: 600; }
+        .stat-box p { color: #888; font-size: 0.95rem; margin-top: 5px; }
+
+        .grid { 
+            display: grid; 
+            grid-template-columns: repeat(7, 1fr); 
+            gap: 15px; 
+        }
+        
+        @media (max-width: 1400px) {
+            .grid { grid-template-columns: repeat(6, 1fr); }
+        }
+        @media (max-width: 1200px) {
+            .grid { grid-template-columns: repeat(5, 1fr); }
+        }
+        @media (max-width: 992px) {
+            .grid { grid-template-columns: repeat(4, 1fr); }
+        }
+        @media (max-width: 768px) {
+            .grid { grid-template-columns: repeat(3, 1fr); gap: 12px; }
+        }
+        @media (max-width: 540px) {
+            .grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+        }
+
+        /* Category Grid - Updated to Card Layout */
+        .cat-grid-container { 
+            display: grid; 
+            grid-template-columns: repeat(4, 1fr); 
+            gap: 20px; 
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .cat-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            transition: var(--transition);
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+        .cat-card:hover { 
+            transform: translateY(-8px); 
+            box-shadow: 0 12px 30px rgba(255, 140, 0, 0.2);
+            border-color: var(--primary);
+        }
+        .cat-card-img {
+            width: 100%;
+            padding-top: 70%;
+            position: relative;
+            background: linear-gradient(135deg, #f5f5f5 0%, #ebebeb 100%);
+            overflow: hidden;
+        }
+        .cat-card-img img {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s;
+        }
+        .cat-card:hover .cat-card-img img { transform: scale(1.1); }
+        .cat-card-name {
+            padding: 15px;
+            text-align: center;
+            background: white;
+        }
+        .cat-card-name h3 {
+            font-size: 1.1rem;
+            color: var(--dark);
+            margin: 0;
+            font-weight: 600;
+        }
+        .cat-card-name p {
+            font-size: 0.85rem;
+            color: var(--primary);
+            margin-top: 5px;
+        }
+
+        @media (max-width: 992px) {
+            .cat-grid-container { grid-template-columns: repeat(3, 1fr); gap: 15px; }
+        }
+        @media (max-width: 768px) {
+            .cat-grid-container { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+        }
+        @media (max-width: 480px) {
+            .cat-grid-container { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+            .cat-card-name { padding: 10px; }
+            .cat-card-name h3 { font-size: 0.95rem; }
+        }
+
+        .card-minimal {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+            transition: var(--transition);
+            border: 1px solid #f0f0f0;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+        .card-minimal:hover { 
+            transform: translateY(-5px); 
+            box-shadow: 0 8px 25px rgba(255, 140, 0, 0.2);
+            border-color: var(--primary);
+        }
+        .prod-img-box {
+            width: 100%;
+            padding-top: 75%;
+            position: relative;
+            background: linear-gradient(135deg, #f5f5f5 0%, #ebebeb 100%);
+            overflow: hidden;
+            border-bottom: 1px solid #eee;
+        }
+        .prod-img-box img {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s;
+            border: 4px solid white;
+            border-radius: 0;
+        }
+        .card-minimal:hover .prod-img-box img { transform: scale(1.08); }
+        
+        .prod-content-box {
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+        .prod-name { 
+            font-size: 0.85rem; 
+            font-weight: 600; 
+            color: var(--dark); 
+            margin-bottom: 4px; 
+            line-height: 1.2; 
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            min-height: 32px;
+        }
+        .prod-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+            padding-bottom: 6px;
+            border-bottom: 1px dashed #eee;
+        }
+        .prod-price { color: var(--primary); font-size: 0.95rem; font-weight: 600; }
+        .prod-stock { color: #888; font-size: 0.7rem; }
+        
+        .prod-actions-box { margin-top: auto; }
+        .prod-actions-box .btn { 
+            width: 100%; 
+            padding: 8px 5px; 
+            font-size: 0.75rem; 
+            border-radius: 8px;
+        }
+
+        .qty-input-group {
+            display: flex; align-items: center; gap: 5px; margin-top: 6px;
+            background: #f5f5f5; padding: 5px; border-radius: 8px;
+        }
+        .qty-input-group input {
+            width: 40px; text-align: center; border: 1px solid #ddd; border-radius: 5px;
+            padding: 5px 2px; margin: 0; font-size: 12px;
+        }
+        .qty-input-group button {
+            background: var(--primary); color: white; border: none;
+            padding: 6px 8px; border-radius: 5px; cursor: pointer; font-weight: bold;
+            white-space: nowrap; flex: 1; font-size: 11px;
+        }
+
+        .bestseller-section {
+            max-width: 1200px;
+            margin: 50px auto;
+            padding: 0 6%;
+        }
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        .section-header h2 {
+            font-size: 1.5rem;
+            color: var(--dark);
+            position: relative;
+        }
+        .section-header h2::before {
+            content: '';
+            position: absolute;
+            left: -15px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 80%;
+            background: var(--primary);
+            border-radius: 2px;
+        }
+        .bestseller-badge {
+            background: linear-gradient(135deg, #ff6b00 0%, #ffa500 100%);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        /* Bestseller Grid - Adjusted for LARGER size */
+        .bestseller-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr); /* Changed from 7 to 5 for larger cards */
+            gap: 20px;
+        }
+        @media (max-width: 1200px) { .bestseller-grid { grid-template-columns: repeat(4, 1fr); } }
+        @media (max-width: 992px) { .bestseller-grid { grid-template-columns: repeat(3, 1fr); } }
+        @media (max-width: 768px) { .bestseller-grid { grid-template-columns: repeat(2, 1fr); gap: 15px; } }
+        @media (max-width: 540px) { .bestseller-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; } }
+
+        .bestseller-card {
+            background: white;
+            border-radius: 16px; /* Slightly larger radius */
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: var(--transition);
+            border: 1px solid #f0f0f0;
+            position: relative;
+            cursor: pointer;
+        }
+        .bestseller-card:hover { 
+            transform: translateY(-8px); 
+            box-shadow: 0 15px 35px rgba(255, 140, 0, 0.25);
+        }
+        .bestseller-card .prod-img-box {
+            padding-top: 80%; /* Slightly taller aspect ratio */
+        }
+        .bestseller-card .prod-info {
+            padding: 15px;
+            text-align: center;
+        }
+        .bestseller-card .prod-info h4 {
+            font-size: 1rem; /* Increased font size */
+            color: var(--dark);
+            margin-bottom: 8px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .bestseller-card .prod-info .price {
+            color: var(--primary);
+            font-weight: 700;
+            font-size: 1.1rem; /* Increased font size */
+        }
+        .bestseller-card .prod-info .sold-count {
+            color: #999;
+            font-size: 0.8rem; /* Increased font size */
+            margin-top: 5px;
+        }
+
+        .hist-search-box { margin-bottom: 15px; }
+        .hist-search-box input {
+            width: 100%; padding: 10px 15px; border-radius: 8px; border: 1px solid #ddd;
+            font-size: 0.9rem;
+        }
+
+        .history-container { text-align: left; font-size: 0.85rem; }
+        .history-item {
+            background: white; border: 1px solid #eee; border-radius: 8px;
+            padding: 10px 12px; margin-bottom: 8px; transition: 0.2s;
+        }
+        .history-item:hover { border-color: var(--primary-light); background: #fffcf7; }
+        .history-item-header { display: flex; justify-content: space-between; margin-bottom: 4px; font-weight: 600; font-size: 0.85rem; }
+        .history-item-details {
+            background: #f9f9f9; padding: 6px 8px; border-radius: 5px;
+            font-family: monospace; font-size: 0.75rem; word-break: break-all;
+        }
+
+        /* Topup History Styles */
+        .topup-history-item {
+            background: white; border: 1px solid #eee; border-radius: 8px;
+            padding: 10px 12px; margin-bottom: 8px; transition: 0.2s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .topup-history-item:hover { border-color: var(--primary-light); }
+        .topup-history-info h4 {
+            font-size: 0.9rem;
+            color: var(--dark);
+            margin-bottom: 3px;
+        }
+        .topup-history-info small {
+            color: #888;
+            font-size: 0.75rem;
+        }
+        .topup-history-amount {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--success);
+        }
+
+        .pagination-controls { display: flex; justify-content: center; gap: 10px; margin-top: 15px; }
+        .page-arrow {
+            background: white; border: 1px solid #ddd; padding: 10px 20px;
+            border-radius: 8px; cursor: pointer; transition: 0.2s; font-size: 15px;
+        }
+        .page-arrow:hover { background: var(--primary-light); border-color: var(--primary); }
+        .page-arrow.disabled { opacity: 0.5; pointer-events: none; }
+
+        #adminPanel { position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: #fffaf5; z-index: 5000; display: none; overflow-y: auto; padding: 40px 3%;
+        padding-top: calc(40px + var(--safe-top));
+        padding-bottom: calc(40px + var(--safe-bottom));
+        -webkit-overflow-scrolling: touch;
+        }
+        .admin-sidebar { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 30px; }
+        .admin-menu-btn { background: white; padding: 15px 10px; border-radius: 12px; border: 2px solid #eee;
+        text-align: center; cursor: pointer; transition: 0.3s; box-shadow: var(--shadow); font-size: 0.9rem; }
+        .admin-menu-btn:hover, .admin-menu-btn.active { border-color: var(--primary); color: var(--primary); background: var(--primary-light); }
+        .admin-content-box { display: none; background: white; padding: 25px; border-radius: 25px; box-shadow: var(--shadow);
+        border-top: 5px solid var(--primary); animation: windowOpen 0.4s ease-out; overflow-x: auto; }
+        .admin-content-box.active { display: block; }
+
+        input, select, textarea { 
+            width: 100%; padding: 14px; margin-bottom: 18px;
+            border: 2px solid #f0f0f0; border-radius: 12px; outline: none; transition: 0.3s;
+            font-size: 16px;
+            background-color: #fff;
+        }
+        input:focus { border-color: var(--primary); background: var(--primary-light); }
+        .pagination { display: flex; justify-content: center; gap: 10px; margin-top: 20px; }
+
+        .admin-item-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 15px; background: #fdfdfd; border: 1px solid #f0f0f0;
+            border-radius: 15px; margin-bottom: 10px; transition: 0.3s; flex-wrap: wrap; gap: 10px;
+        }
+        .admin-item-row:hover { background: #fffaf5; border-color: var(--primary-light); transform: translateX(5px); }
+
+        .topup-card { background: white; border-radius: 20px; padding: 25px; text-align: center; box-shadow: var(--shadow);
+        border: 2px solid transparent; transition: 0.3s; cursor: pointer; }
+        .topup-card:hover { border-color: var(--primary); transform: translateY(-5px); }
+        .topup-card i { font-size: 3rem; color: var(--primary); margin-bottom: 15px; }
+        .slip-preview { width: 100%; max-height: 250px; object-fit: contain; margin: 15px 0;
+        border-radius: 10px; display: none; border: 1px dashed #ddd; }
+
+        .user-info-box {
+            background: #fafafa; border-radius: 10px; padding: 10px 15px; margin-bottom: 8px; width: 100%;
+        }
+        .user-info-box code {
+            background: #eee; padding: 2px 6px; border-radius: 4px;
+            font-size: 0.75rem; color: #666;
+        }
+        .user-register-date {
+            font-size: 0.8rem;
+            color: #888;
+            margin-top: 5px;
+        }
+        .user-register-date i {
+            color: var(--primary);
+            margin-right: 5px;
+        }
+
+        /* Admin User Expanded Details */
+        .admin-user-details {
+            width: 100%;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px dashed #ddd;
+        }
+        .detail-section-title {
+            font-size: 0.85rem;
+            color: var(--dark);
+            font-weight: 600;
+            margin: 10px 0 5px 0;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .detail-section-title i { color: var(--primary); }
+        
+        .mini-history-item {
+            background: #f9f9f9;
+            padding: 8px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            margin-bottom: 5px;
+            border-left: 3px solid #ddd;
+            display: flex;
+            justify-content: space-between;
+        }
+        .mini-history-item.topup { border-left-color: var(--success); }
+        .mini-history-item.order { border-left-color: var(--primary); }
+        .mini-history-item .amount { font-weight: 600; color: var(--success); }
+
+        @media (max-width: 768px) { 
+            .nav-links { display: none; } 
+            .banner-container { height: 200px; border-radius: 0; margin: 0 0 20px 0; }
+            .shortcut-container { display: block; }
+            .stats-dashboard { gap: 15px; margin: 20px auto; }
+            .stat-box { width: 100%; padding: 15px; }
+            .logo { font-size: 1.6rem; }
+            nav { padding: 0 4%; }
+            .admin-sidebar { grid-template-columns: 1fr 1fr; }
+            #adminPanel .admin-content-box > div[style*="grid-template-columns"] {
+                grid-template-columns: 1fr !important;
+            }
+            .auth-zone { gap: 8px; }
+            .btn { padding: 10px 15px; font-size: 0.9rem; }
+            .bestseller-section { padding: 0 4%; }
+        }
+        
+        @media (max-width: 480px) {
+            .admin-sidebar { grid-template-columns: 1fr; }
+            .qty-input-group { flex-wrap: wrap; justify-content: center; }
+            .qty-input-group button { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="announcementOverlay">
+        <div class="announcement-box">
+            <div class="announcement-header">
+                <h3><i class="fas fa-bullhorn"></i> ประกาศจากร้านค้า</h3>
+                <button class="announcement-close" onclick="closeAnnouncement()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <img id="announcementImage" class="announcement-image" src="" alt="Announcement">
+            <div class="announcement-footer">
+                <input type="checkbox" id="dontShowAgain">
+                <label for="dontShowAgain">ไม่แจ้งเตือนอีกเป็นเวลา 1 ชั่วโมง</label>
+            </div>
+        </div>
+    </div>
+
+    <div id="successOverlay">
+        <svg class="checkmark-svg" viewBox="0 0 52 52">
+            <circle class="checkmark-circle" cx="26" cy="26" r="25" fill="none"/>
+            <path class="checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+        </svg>
+        <h2 id="successText" style="margin-top:25px; color:var(--success); font-weight:600;">ดำเนินการสำเร็จ!</h2>
+    </div>
+
+    <!-- Full Screen History Modal -->
+    <div id="historyModal" class="fullscreen-modal">
+        <div class="fm-header">
+            <div class="fm-title"><i class="fas fa-receipt"></i> ประวัติการซื้อ</div>
+            <button class="fm-close-btn" onclick="closeHistoryModal()"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="fm-content" id="historyModalContent">
+            <!-- Content injected by JS -->
+        </div>
+    </div>
+
+    <!-- Full Screen Topup History Modal -->
+    <div id="topupHistoryModal" class="fullscreen-modal">
+        <div class="fm-header">
+            <div class="fm-title"><i class="fas fa-history"></i> ประวัติการเติมเงิน</div>
+            <button class="fm-close-btn" onclick="closeTopupModal()"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="fm-content" id="topupHistoryModalContent">
+            <!-- Content injected by JS -->
+        </div>
+    </div>
+
+    <div class="shortcut-container">
+        <div class="shortcut-trigger" onclick="toggleShortcut()">
+             <i class="fas fa-bars"></i>
+        </div>
+        <div class="shortcut-menu" id="shortcutMenu">
+            <div class="shortcut-item" onclick="goPage('home'); toggleShortcut();"><i class="fas fa-home"></i> หน้าแรก</div>
+            <div class="shortcut-item" onclick="goPage('store'); toggleShortcut();"><i class="fas fa-shopping-bag"></i> ร้านค้า</div>
+            <div class="shortcut-item" onclick="showTopup(); toggleShortcut();"><i class="fas fa-wallet"></i> เติมเงิน</div>
+            <div class="shortcut-item" onclick="showTopupHistory(); toggleShortcut();"><i class="fas fa-history"></i> ประวัติเติมเงิน</div>
+            <div class="shortcut-item" onclick="showRedeem(); toggleShortcut();"><i class="fas fa-ticket-alt"></i> ใช้งานโค้ด</div>
+            <div class="shortcut-item" onclick="showHistory(); toggleShortcut();"><i class="fas fa-receipt"></i> ประวัติซื้อ</div>
+            <div class="shortcut-item" onclick="contactAdmin(); toggleShortcut();"><i class="fas fa-comment-dots"></i> ติดต่อแอดมิน</div>
+            <div class="shortcut-item" onclick="openDiscord(); toggleShortcut();" style="color:#5865F2;"><i class="fab fa-discord"></i> Discord</div>
+        </div>
+    </div>
+
+    <nav>
+        <div class="logo" id="siteLogo" onclick="goPage('home')">DOTFIGHT</div>
+        <ul class="nav-links">
+            <li id="m-home" class="active" onclick="goPage('home')"><i class="fas fa-home"></i> หน้าแรก</li>
+            <li id="m-store" onclick="goPage('store')"><i class="fas fa-shopping-bag"></i> ร้านค้า</li>
+            <li onclick="showTopup()"><i class="fas fa-wallet"></i> เติมเงิน</li>
+            <li onclick="showTopupHistory()"><i class="fas fa-history"></i> ประวัติเติมเงิน</li>
+            <li onclick="showRedeem()"><i class="fas fa-ticket-alt"></i> ใช้งานโค้ด</li>
+            <li onclick="showHistory()"><i class="fas fa-receipt"></i> ประวัติ</li>
+            <li onclick="contactAdmin()"><i class="fas fa-headset"></i> ติดต่อแอดมิน</li>
+            <li onclick="openDiscord()" style="color:#5865F2;"><i class="fab fa-discord"></i> Discord</li>
+        </ul>
+        <div class="auth-zone" id="authZone">
+            <div id="uTopCredit" class="top-credit">฿ <span id="cDisplay">0.00</span></div>
+        </div>
+    </nav>
+
+    <div id="page-home" class="section active">
+        <div class="banner-container">
+            <div class="banner-wrapper" id="bannerWrapper">
+                <div class="banner-slide"><h2>Banner 1</h2></div>
+                <div class="banner-slide"><h2>Banner 2</h2></div>
+                <div class="banner-slide"><h2>Banner 3</h2></div>
+                <div class="banner-slide"><h2>Banner 4</h2></div>
+            </div>
+        </div>
+
+        <div class="stats-dashboard">
+            <div class="stat-box">
+                <i class="fas fa-hand-holding-usd"></i>
+                <h2 id="statTopup">฿0</h2>
+                <p>ยอดเติมเงินรวม</p>
+            </div>
+            <div class="stat-box">
+                <i class="fas fa-boxes"></i>
+                <h2 id="statStock">0</h2>
+                <p>สินค้าพร้อมส่ง</p>
+            </div>
+            <div class="stat-box">
+                <i class="fas fa-chart-line"></i>
+                <h2 id="statSales">฿0</h2>
+                <p>ยอดขายรวม</p>
+            </div>
+            <div class="stat-box">
+                <i class="fas fa-users"></i>
+                <h2 id="statMembers">0</h2>
+                <p>สมาชิกทั้งหมด</p>
+            </div>
+        </div>
+
+        <div style="text-align:center; margin-top:10px;">
+            <h1 style="font-size:3rem;">WELCOME TO <span id="welcomeName" style="color:var(--primary)">DOTFIGHT</span></h1>
+            <p style="color:#888;">ระบบจัดการสินค้าและบริการแบบ Full Automation</p>
+            <button class="btn btn-reg" style="margin-top:30px; padding:18px 60px;" onclick="goPage('store')">ไปที่ร้านค้า <i class="fas fa-arrow-right"></i></button>
+        </div>
+
+        <div class="bestseller-section">
+            <div class="section-header">
+                <h2>สินค้าขายดี</h2>
+                <div class="bestseller-badge">
+                    <i class="fas fa-fire"></i> Hot Items
+                </div>
+            </div>
+            <div class="bestseller-grid" id="bestsellerGrid">
+            </div>
+        </div>
+    </div>
+
+    <div id="page-store" class="section">
+        <div id="catSection">
+            <h2 style="margin-bottom:30px; border-left: 5px solid var(--primary); padding-left: 15px;">หมวดหมู่สินค้า</h2>
+            <div class="cat-grid-container" id="catGrid"></div>
+        </div>
+        <div id="prodSection" style="display:none;">
+            <button class="btn" onclick="backToCats()" style="margin-bottom:20px; background:#fff; border:1px solid #ddd;"><i class="fas fa-arrow-left"></i> ย้อนกลับ</button>
+            <h2 id="catTitle" style="margin-bottom:30px; color:var(--primary);">...</h2>
+            <div class="grid" id="prodGrid"></div>
+        </div>
+    </div>
+
+    <div id="adminPanel">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:40px;">
+            <h1 style="color:var(--primary); font-size: 1.8rem;"><i class="fas fa-user-shield"></i> ADMIN CONSOLE</h1>
+            <button class="btn btn-logout" onclick="toggleAdmin(false)">ปิดหน้าต่าง</button>
+        </div>
+
+        <div class="admin-sidebar">
+            <div class="admin-menu-btn active" onclick="showAdminTab('tab-site', this)"><i class="fas fa-globe"></i> ตั้งค่าเว็บ</div>
+            <div class="admin-menu-btn" onclick="showAdminTab('tab-slip', this)"><i class="fas fa-file-invoice-dollar"></i> ตรวจสอบสลิป</div>
+            <div class="admin-menu-btn" onclick="showAdminTab('tab-redeem', this)"><i class="fas fa-ticket-alt"></i> สร้างโค้ด</div>
+            <div class="admin-menu-btn" onclick="showAdminTab('tab-orders', this)"><i class="fas fa-tasks"></i> สินค้า Manual</div>
+            <div class="admin-menu-btn" onclick="showAdminTab('tab-users', this)"><i class="fas fa-users-cog"></i> สมาชิก</div>
+            <div class="admin-menu-btn" onclick="showAdminTab('tab-items', this)"><i class="fas fa-boxes"></i> จัดการสินค้า</div>
+        </div>
+
+        <div id="tab-site" class="admin-content-box active">
+            <h3>จัดการเว็บไซต์ & ระบบเติมเงิน</h3>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top:20px;">
+                <div>
+                    <label>ชื่อเว็บไซต์</label>
+                    <input type="text" id="setSiteName" placeholder="เช่น DOTFIGHT SHOP">
+                    <label>ลิงก์ QR Code PromptPay</label>
+                    <input type="text" id="setPpQr" placeholder="URL รูป QR Code">
+                    <label>ชื่อบัญชี PromptPay</label>
+                    <input type="text" id="setPpName" placeholder="ชื่อ-นามสกุล">
+                    <label>ลิงก์ติดต่อแอดมิน</label>
+                    <input type="text" id="setAdminLink" placeholder="https://facebook.com/yourpage">
+                    <label>ลิงก์ Discord (สำหรับปุ่ม Discord)</label>
+                    <input type="text" id="setDiscordLink" placeholder="https://discord.gg/yourcode">
+                    <label>รูปประกาศ Popup (แสดงตอน Login)</label>
+                    <input type="text" id="setAnnounceImg" placeholder="URL รูปประกาศที่จะแสดง">
+                    <button class="btn btn-reg" style="width:100%" onclick="updateSiteSettings()">บันทึกข้อมูลทั้งหมด</button>
+                </div>
+                <div>
+                    <label>เบอร์ TrueMoney Wallet</label>
+                    <input type="text" id="setTwPhone" placeholder="0xx-xxx-xxxx">
+                    <label>ชื่อบัญชี Wallet</label>
+                    <input type="text" id="setTwName" placeholder="ชื่อบัญชี Wallet">
+                    <label>ลิงก์รูป Banner (4 รูป)</label>
+                    <input type="text" id="bn1" placeholder="Banner URL 1">
+                    <input type="text" id="bn2" placeholder="Banner URL 2">
+                    <input type="text" id="bn3" placeholder="Banner URL 3">
+                    <input type="text" id="bn4" placeholder="Banner URL 4">
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-slip" class="admin-content-box">
+            <h3>ตรวจสอบสลิปการโอนเงิน</h3>
+            <div id="adminSlipList" style="margin-top:20px; display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:20px;"></div>
+        </div>
+
+        <div id="tab-redeem" class="admin-content-box">
+            <h3>สร้างโค้ดเครดิต (Redeem)</h3>
+            <div style="display:flex; gap:10px; margin-top:15px; flex-wrap:wrap;">
+                <input type="text" id="rdCode" placeholder="โค้ด" style="flex:1; min-width: 120px;">
+                <input type="number" id="rdAmount" placeholder="เงินที่ได้รับ" style="width: 120px;">
+                <input type="number" id="rdLimit" placeholder="จำนวนคน" style="width: 100px;">
+                <button class="btn btn-reg" onclick="createRedeem()">สร้าง</button>
+            </div>
+            
+            <h4 style="margin-top:30px; border-bottom:2px solid #eee; padding-bottom:10px;">รายการโค้ดที่สร้างไว้</h4>
+            <div id="adminRedeemList" style="margin-top:15px;"></div>
+        </div>
+
+        <div id="tab-orders" class="admin-content-box">
+            <h3>สินค้า Manual (จัดการสถานะ)</h3>
+            <div id="adminManualList" style="margin-top:20px;"></div>
+        </div>
+
+        <div id="tab-users" class="admin-content-box">
+            <h3>จัดการสมาชิก</h3>
+            <input type="text" id="userSearch" placeholder="ค้นหาชื่อสมาชิก..." oninput="syncAdmin()">
+            <div id="adminUserList"></div>
+            <div id="userPagination" class="pagination"></div>
+        </div>
+
+        <div id="tab-items" class="admin-content-box">
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:30px;">
+                <div>
+                    <h4>เพิ่ม/แก้ไข หมวดหมู่</h4>
+                    <input type="text" id="acName" placeholder="ชื่อหมวดหมู่">
+                    <input type="text" id="acImg" placeholder="URL รูปหน้าปก">
+                    <button class="btn btn-reg" style="width:100%" onclick="addCat()">เพิ่มหมวดหมู่ใหม่</button>
+                    <div id="adminCatList" style="margin-top:15px;"></div>
+                </div>
+                <div>
+                    <h4>เพิ่มสินค้า</h4>
+                    <select id="acSel"></select>
+                    <select id="apType">
+                        <option value="auto">ระบบ Auto (บรรทัดละชิ้น)</option>
+                        <option value="manual">ระบบ Manual (รอดำเนินการ)</option>
+                        <option value="gacha">ระบบ Gacha (สุ่มรางวัล)</option>
+                    </select>
+                    <input type="text" id="apName" placeholder="ชื่อสินค้า">
+                    <input type="number" id="apPrice" placeholder="ราคา">
+                    <input type="text" id="apUrl" placeholder="URL รูป/ลิงก์รายละเอียดสินค้า">
+                    
+                    <div id="autoStockArea">
+                        <textarea id="apStock" style="height:100px" placeholder="สต็อก (ถ้าเลือก Auto ใส่บรรทัดละชิ้น)"></textarea>
+                    </div>
+                    
+                    <div id="gachaConfigArea" style="display:none;">
+                        <label style="font-weight:600; color:var(--primary);">รางวัลใหญ่ (1 บรรทัด = 1 รางวัล)</label>
+                        <textarea id="gachaRewards" style="height:80px" placeholder="รางวัลใหญ่ 1&#10;รางวัลใหญ่ 2&#10;..."></textarea>
+                        <label style="font-weight:600; color:#888;">จำนวนรางวัลเกลือ</label>
+                        <input type="number" id="gachaLoseCount" placeholder="จำนวนรางวัลเกลือ เช่น 298">
+                    </div>
+                    
+                    <button class="btn btn-reg" style="width:100%" onclick="addProd()">บันทึกสินค้าใหม่</button>
+                    <div id="adminProdList" style="margin-top:15px;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="authModal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:6000; display:none; align-items:center; justify-content:center; backdrop-filter:blur(8px);">
+        <div class="modal-content" style="background:white; padding:40px; border-radius:30px; width:90%; max-width:400px; box-shadow: 0 20px 50px rgba(0,0,0,0.3);">
+            <h2 id="atTitle" style="text-align:center; margin-bottom:30px; color:var(--primary);">เข้าสู่ระบบ</h2>
+            <input type="text" id="atUser" placeholder="ชื่อผู้ใช้งาน">
+            <input type="password" id="atPass" placeholder="รหัสผ่าน">
+            <button class="btn btn-reg" style="width:100%" id="atBtn">ตกลง</button>
+            <button onclick="toggleAuth(false)" style="width:100%; margin-top:15px; background:none; border:none; color:#bbb; cursor:pointer;">ปิดหน้าต่าง</button>
+        </div>
+    </div>
+
+    <script type="importmap">
+    {
+        "imports": {
+            "firebase/app": "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js",
+            "firebase/auth": "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js",
+            "firebase/database": "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js"
+        }
+    }
+    </script>
+
+    <script type="module">
+        import { initializeApp } from "firebase/app";
+        import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut as firebaseSignOut, updatePassword, EmailAuthProvider, reauthenticateWithCredential } from "firebase/auth";
+        import { getDatabase, ref, set, push, onValue, get, update, remove, increment } from "firebase/database";
+
+        const firebaseConfig = {
+  apiKey: "AIzaSyAYOjGTrQ_WqT7FXxaRDCa52bQDAyeczCo",
+  authDomain: "loga-51c36.firebaseapp.com",
+  databaseURL: "https://loga-51c36-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "loga-51c36",
+  storageBucket: "loga-51c36.firebasestorage.app",
+  messagingSenderId: "623580564357",
+  appId: "1:623580564357:web:3207af9bc79265a3bf12ec"
+};
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getDatabase(app);
+
+        let userNow = null;
+        let siteSettings = {};
+        let allProducts = {}; 
+        let allOrders = {}; 
+        let allUsersData = {}; 
+        let productSalesCount = {}; 
+        let allTopupHistory = {};
+        let pendingCount = 0;
+
+        const SUPER_ADMIN = "jadi59";
+        const ITEMS_PER_PAGE = 5;
+        const ANNOUNCEMENT_KEY = 'announcementDismissedTime';
+
+        window.showLivelySuccess = (text = "ดำเนินการสำเร็จ!") => {
+            const overlay = document.getElementById('successOverlay');
+            document.getElementById('successText').innerText = text;
+            overlay.style.display = 'flex';
+            setTimeout(() => { overlay.style.display = 'none'; }, 2000);
+        };
+
+        window.toggleShortcut = () => {
+            document.getElementById('shortcutMenu').classList.toggle('show');
+        };
+
+        window.goPage = (p) => {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-links li').forEach(l => l.classList.remove('active'));
+            const target = document.getElementById(`page-${p}`);
+            if(target) target.classList.add('active');
+            if(document.getElementById(`m-${p}`)) document.getElementById(`m-${p}`).classList.add('active');
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        };
+
+        window.backToCats = () => {
+            document.getElementById('catSection').style.display = 'block';
+            document.getElementById('prodSection').style.display = 'none';
+        };
+
+        window.contactAdmin = () => {
+            if(siteSettings.adminLink) {
+                window.open(siteSettings.adminLink, '_blank');
+            } else {
+                Swal.fire('ข้อมูล','แอดมินยังไม่ได้ตั้งค่าช่องทางติดต่อ','info');
+            }
+        };
+
+        window.openDiscord = () => {
+            if(siteSettings.discordLink) {
+                window.open(siteSettings.discordLink, '_blank');
+            } else {
+                Swal.fire('ข้อมูล','แอดมินยังไม่ได้ตั้งค่าลิงก์ Discord','info');
+            }
+        };
+
+        window.handleLogout = async () => {
+            try {
+                await firebaseSignOut(auth);
+                showLivelySuccess('ออกจากระบบแล้ว');
+                location.reload();
+            } catch(e) {
+                Swal.fire('ผิดพลาด', 'ไม่สามารถออกจากระบบได้', 'error');
+            }
+        };
+
+        window.closeAnnouncement = () => {
+            const overlay = document.getElementById('announcementOverlay');
+            const checkbox = document.getElementById('dontShowAgain');
+            
+            if (checkbox.checked) {
+                localStorage.setItem(ANNOUNCEMENT_KEY, Date.now().toString());
+            }
+            
+            overlay.classList.add('closing');
+            setTimeout(() => {
+                overlay.style.display = 'none';
+                overlay.classList.remove('closing');
+            }, 400);
+        };
+
+        const showAnnouncementIfNeeded = () => {
+            if (!siteSettings.announceImg) return;
+            
+            const dismissedTime = localStorage.getItem(ANNOUNCEMENT_KEY);
+            const oneHour = 60 * 60 * 1000;
+            
+            if (dismissedTime && (Date.now() - parseInt(dismissedTime)) < oneHour) {
+                return;
+            }
+            
+            const overlay = document.getElementById('announcementOverlay');
+            const img = document.getElementById('announcementImage');
+            img.src = siteSettings.announceImg;
+            img.onerror = () => {
+                img.style.display = 'none';
+            };
+            overlay.style.display = 'flex';
+        };
+
+        window.showChangePassword = async () => {
+            if(!userNow) return;
+            
+            const { value: formValues } = await Swal.fire({
+                title: 'เปลี่ยนรหัสผ่าน',
+                html: `
+                    <input id="sw-old" type="password" class="swal2-input" placeholder="รหัสผ่านเดิม">
+                    <input id="sw-new" type="password" class="swal2-input" placeholder="รหัสผ่านใหม่">
+                    <input id="sw-confirm" type="password" class="swal2-input" placeholder="ยืนยันรหัสผ่านใหม่อีกครั้ง">
+                `,
+                focusConfirm: false,
+                showCancelButton: true,
+                confirmButtonText: 'ยืนยันการเปลี่ยนรหัส',
+                preConfirm: () => {
+                    const oldPass = document.getElementById('sw-old').value;
+                    const newPass = document.getElementById('sw-new').value;
+                    const confirmPass = document.getElementById('sw-confirm').value;
+                    if (!oldPass || !newPass || !confirmPass) {
+                        Swal.showValidationMessage('กรุณากรอกข้อมูลให้ครบ');
+                    } else if (newPass !== confirmPass) {
+                        Swal.showValidationMessage('รหัสผ่านใหม่ไม่ตรงกัน');
+                    } else if (newPass.length < 6) {
+                        Swal.showValidationMessage('รหัสผ่านต้องมากกว่า 6 ตัว');
+                    }
+                    return { oldPass, newPass };
+                }
+            });
+
+            if (formValues) {
+                try {
+                    const credential = EmailAuthProvider.credential(userNow.email, formValues.oldPass);
+                    await reauthenticateWithCredential(userNow, credential);
+                    await updatePassword(userNow, formValues.newPass);
+                    await update(ref(db, `users/${userNow.uid}`), { password: formValues.newPass });
+                    showLivelySuccess('เปลี่ยนรหัสผ่านสำเร็จ!');
+                } catch (error) {
+                    console.error(error);
+                    Swal.fire('ผิดพลาด', 'รหัสผ่านเดิมไม่ถูกต้องหรือเกิดข้อผิดพลาด', 'error');
+                }
+            }
+        };
+
+        let currentSlide = 0;
+        const startBanner = () => {
+            setInterval(() => {
+                currentSlide = (currentSlide + 1) % 4;
+                const wrapper = document.getElementById('bannerWrapper');
+                if(wrapper) wrapper.style.transform = `translateX(-${currentSlide * 25}%)`;
+            }, 3000);
+        };
+
+        const calculateBestSellers = () => {
+            productSalesCount = {};
+            
+            Object.values(allOrders).forEach(userOrders => {
+                Object.values(userOrders).forEach(order => {
+                    if (order.status === 'success') {
+                        let prodName = order.name.replace(/\s*\(x\d+\)$/, '').trim();
+                        if (!productSalesCount[prodName]) {
+                            productSalesCount[prodName] = 0;
+                        }
+                        const match = order.name.match(/\(x(\d+)\)$/);
+                        const qty = match ? parseInt(match[1]) : 1;
+                        productSalesCount[prodName] += qty;
+                    }
+                });
+            });
+            
+            renderBestSellers();
+        };
+
+        const renderBestSellers = () => {
+            const grid = document.getElementById('bestsellerGrid');
+            if (!grid) return;
+            
+            const sorted = Object.entries(productSalesCount)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 5); // Changed from 7 to 5 to match grid columns
+            
+            if (sorted.length === 0) {
+                grid.innerHTML = '<p style="text-align:center; color:#999; grid-column: 1/-1; padding: 30px;">ยังไม่มีข้อมูลการขาย</p>';
+                return;
+            }
+            
+            grid.innerHTML = '';
+            sorted.forEach(([prodName, count], index) => {
+                let prodData = null;
+                for (const [pid, p] of Object.entries(allProducts)) {
+                    if (p.name === prodName) {
+                        prodData = { ...p, id: pid };
+                        break;
+                    }
+                }
+                
+                if (prodData) {
+                    grid.innerHTML += `
+                        <div class="bestseller-card" onclick="goToProductCategory('${prodData.cat}', '${prodData.id}')">
+                            <div class="prod-img-box">
+                                ${prodData.url ? `<img src="${prodData.url}">` : `<div style="position:absolute; top:0; left:0; width:100%; height:100%; display:flex; align-items:center; justify-content:center; color:#ccc;"><i class="fas fa-image fa-2x"></i></div>`}
+                            </div>
+                            <div class="prod-info">
+                                <h4>${prodData.name}</h4>
+                                <div class="price">฿${prodData.price}</div>
+                                <div class="sold-count"><i class="fas fa-shopping-cart"></i> ขาย ${count} ชิ้น</div>
+                            </div>
+                        </div>`;
+                }
+            });
+        };
+
+        window.goToProductCategory = (catId, prodId) => {
+            goPage('store');
+            setTimeout(() => {
+                openCategory(catId, '');
+            }, 100);
+        };
+
+        // Calculate Pending Items for Admin Notification Badge
+        const calculatePendingCount = () => {
+            let count = 0;
+            // Count pending slips
+            Object.values(allTopupHistory).forEach(userHistory => {
+                // We need to check 'slips' node for pending, but we listen to 'topup_history' for success.
+                // For badge, we need to listen to slips node specifically or rely on syncAdmin logic.
+                // Since we don't have 'allSlips' global variable populated in syncStore, 
+                // we will update the badge inside the syncAdmin onValue listener for slips.
+            });
+            return count;
+        };
+
+        const updateAdminBadge = (count) => {
+            pendingCount = count;
+            const badgeEl = document.getElementById('adminBadge');
+            if (badgeEl) {
+                badgeEl.style.display = count > 0 ? 'flex' : 'none';
+                badgeEl.innerText = count > 9 ? '9+' : count;
+            }
+        };
+
+        const syncStore = () => {
+            onValue(ref(db, 'settings'), snap => {
+                if(snap.exists()){
+                    siteSettings = snap.val();
+                    const s = siteSettings;
+                    document.getElementById('siteLogo').innerText = s.name || 'DOTFIGHT';
+                    document.getElementById('welcomeName').innerText = s.name || 'DOTFIGHT';
+                    document.getElementById('siteTitleTag').innerText = (s.name || 'DOTFIGHT') + " - Orange Edition";
+                    
+                    if(document.getElementById('setSiteName')) document.getElementById('setSiteName').value = s.name || '';
+                    if(document.getElementById('setPpQr')) document.getElementById('setPpQr').value = s.ppQr || '';
+                    if(document.getElementById('setPpName')) document.getElementById('setPpName').value = s.ppName || '';
+                    if(document.getElementById('setTwPhone')) document.getElementById('setTwPhone').value = s.twPhone || '';
+                    if(document.getElementById('setTwName')) document.getElementById('setTwName').value = s.twName || '';
+                    if(document.getElementById('setAdminLink')) document.getElementById('setAdminLink').value = s.adminLink || '';
+                    if(document.getElementById('setDiscordLink')) document.getElementById('setDiscordLink').value = s.discordLink || '';
+                    if(document.getElementById('setAnnounceImg')) document.getElementById('setAnnounceImg').value = s.announceImg || '';
+                    
+                    if(s.banners){
+                        const slides = document.querySelectorAll('.banner-slide');
+                        s.banners.forEach((url, i) => {
+                            if(url && slides[i]) {
+                                slides[i].style.backgroundImage = `url('${url}')`;
+                                slides[i].innerHTML = ""; // Clear text if image exists
+                            }
+                        });
+                    }
+                }
+            });
+
+            onValue(ref(db, 'categories'), snap => {
+                const grid = document.getElementById('catGrid'), sel = document.getElementById('acSel');
+                grid.innerHTML = ''; sel.innerHTML = '';
+                if(snap.exists()) {
+                    Object.entries(snap.val()).forEach(([id, c]) => {
+                        grid.innerHTML += `
+                            <div class="cat-card" onclick="openCategory('${id}', '${c.name}')">
+                                <div class="cat-card-img">
+                                    <img src="${c.img}" alt="${c.name}">
+                                </div>
+                                <div class="cat-card-name">
+                                    <h3>${c.name}</h3>
+                                    <p><i class="fas fa-arrow-right"></i> ดูสินค้า</p>
+                                </div>
+                            </div>`;
+                        sel.innerHTML += `<option value="${id}">${c.name}</option>`;
+                    });
+                }
+            });
+
+            onValue(ref(db, 'products'), snap => {
+                allProducts = snap.val() || {};
+                let totalStock = 0;
+                Object.values(allProducts).forEach(p => {
+                    if(p.type === 'auto' && p.stock) totalStock += p.stock.length;
+                    if(p.type === 'gacha') {
+                        const winCount = p.gachaRewards ? p.gachaRewards.length : 0;
+                        const loseCount = p.gachaLoseCount || 0;
+                        totalStock += (winCount + loseCount);
+                    }
+                });
+                document.getElementById('statStock').innerText = totalStock;
+                calculateBestSellers();
+            });
+
+            onValue(ref(db, 'stats'), snap => {
+                const data = snap.val() || {};
+                document.getElementById('statTopup').innerText = "฿" + Number(data.totalTopups || 0).toLocaleString();
+                document.getElementById('statSales').innerText = "฿" + Number(data.totalSales || 0).toLocaleString();
+            });
+            
+            onValue(ref(db, 'orders'), snap => {
+                allOrders = snap.val() || {};
+                calculateBestSellers();
+            });
+
+            onValue(ref(db, 'users'), snap => {
+                allUsersData = snap.val() || {};
+                document.getElementById('statMembers').innerText = Object.keys(allUsersData).length;
+            });
+
+            onValue(ref(db, 'topup_history'), snap => {
+                allTopupHistory = snap.val() || {};
+            });
+        };
+
+        window.toggleProductType = () => {
+            const type = document.getElementById('apType').value;
+            document.getElementById('autoStockArea').style.display = type === 'auto' ? 'block' : 'none';
+            document.getElementById('gachaConfigArea').style.display = type === 'gacha' ? 'block' : 'none';
+        };
+        document.getElementById('apType').addEventListener('change', window.toggleProductType);
+
+        window.openCategory = (id, name) => {
+            document.getElementById('catSection').style.display = 'none';
+            document.getElementById('prodSection').style.display = 'block';
+            document.getElementById('catTitle').innerText = name;
+            onValue(ref(db, 'products'), snap => {
+                const prods = snap.val() || {};
+                const grid = document.getElementById('prodGrid');
+                grid.innerHTML = '';
+                Object.entries(prods).forEach(([pid, p]) => {
+                    if(p.cat === id) {
+                        let stockCount = 0;
+                        let bodyHtml = '';
+                        
+                        const btnStyle = `width:100%; margin-top:6px;`; 
+                        
+                        if(p.type === 'auto') {
+                            stockCount = p.stock ? p.stock.length : 0;
+                            bodyHtml = `
+                                <div class="prod-actions-box">
+                                    <button class="btn btn-reg" style="${btnStyle}" onclick="buyItem('${pid}')">ซื้อ 1 ชิ้น</button>
+                                    <div class="qty-input-group">
+                                        <input type="number" id="qty-${pid}" value="1" min="1" max="${stockCount}">
+                                        <button onclick="buyMultipleByInput('${pid}')">ซื้อหลายชิ้น</button>
+                                    </div>
+                                </div>`;
+                        } else if(p.type === 'gacha') {
+                            const winCount = p.gachaRewards ? p.gachaRewards.length : 0;
+                            const loseCount = p.gachaLoseCount || 0;
+                            stockCount = winCount + loseCount;
+                            bodyHtml = `
+                                <div class="prod-actions-box">
+                                    <button class="btn btn-gacha" style="${btnStyle}; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);" onclick="playGacha('${pid}')">สุ่ม 1 ครั้ง</button>
+                                    <div class="qty-input-group">
+                                        <input type="number" id="gqty-${pid}" value="1" min="1" max="${stockCount}">
+                                        <button onclick="playGachaMultiple('${pid}')">สุ่มหลายครั้ง</button>
+                                    </div>
+                                </div>`;
+                        } else {
+                            stockCount = '∞';
+                            bodyHtml = `
+                                <div class="prod-actions-box">
+                                    <button class="btn btn-reg" style="${btnStyle}" onclick="buyItem('${pid}')">สั่งซื้อ</button>
+                                </div>`;
+                        }
+                        
+                        grid.innerHTML += `
+                            <div class="card-minimal">
+                                <div class="prod-img-box">
+                                    ${p.url ? `<img src="${p.url}">` : `<div style="position:absolute; top:0; left:0; width:100%; height:100%; display:flex; align-items:center; justify-content:center; color:#ccc;"><i class="fas fa-image fa-2x"></i></div>`}
+                                </div>
+                                <div class="prod-content-box">
+                                    <div class="prod-name">${p.name}</div>
+                                    <div class="prod-meta">
+                                        <span class="prod-price">฿${p.price}</span>
+                                        <span class="prod-stock">Stock: <b style="color:var(--success);">${stockCount}</b></span>
+                                    </div>
+                                    ${bodyHtml}
+                                </div>
+                            </div>`;
+                    }
+                });
+            }, { onlyOnce: true });
+        };
+
+        window.buyItem = async (pid) => {
+            if(!userNow) return toggleAuth(true, 'login');
+            const pS = await get(ref(db, `products/${pid}`));
+            const p = pS.val();
+            const uS = await get(ref(db, `users/${userNow.uid}`));
+            const uData = uS.val();
+            if(!uData) return Swal.fire('Error', 'User data not found', 'error');
+            const credit = Number(uData.credit || 0);
+
+            if(credit < p.price) return Swal.fire('เงินไม่พอ','กรุณาเติมเงิน','error');
+            const confirm = await Swal.fire({
+                title: 'ยืนยันการสั่งซื้อ?',
+                html: `คุณกำลังจะซื้อ: <b>${p.name}</b><br>ราคา: <span style="color:orange">฿${p.price}</span>`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#FF8C00',
+                confirmButtonText: 'ยืนยันการซื้อ',
+                cancelButtonText: 'ยกเลิก'
+            });
+
+            if(!confirm.isConfirmed) return;
+
+            if(p.type === 'manual') {
+                const { value: formValues } = await Swal.fire({
+                    title: 'ระบุข้อมูลผู้ใช้',
+                    html: '<input id="sw-id" class="swal2-input" placeholder="ไอดี"><input id="sw-pw" class="swal2-input" placeholder="รหัสผ่าน">',
+                    preConfirm: () => [document.getElementById('sw-id').value, document.getElementById('sw-pw').value]
+                });
+                if(formValues && formValues[0]) {
+                    await update(ref(db, `users/${userNow.uid}`), { credit: credit - Number(p.price) });
+                    await push(ref(db, `orders/${userNow.uid}`), {
+                        name: p.name, price: p.price, type: 'manual', status: 'pending',
+                        details: `ID: ${formValues[0]} | PW: ${formValues[1]}`, date: new Date().toLocaleString()
+                    });
+                    await push(ref(db, `manual_orders`), {
+                        uid: userNow.uid, username: uData.username, productName: p.name, price: p.price,
+                        details: `ID: ${formValues[0]} | PW: ${formValues[1]}`, status: 'pending', date: new Date().toLocaleString()
+                    });
+                    showLivelySuccess('สั่งซื้อสำเร็จ! รอแอดมินดำเนินการ');
+                }
+            } else if(p.type === 'auto') {
+                if(!p.stock || p.stock.length === 0) return Swal.fire('ผิดพลาด','สินค้าหมด','error');
+                const item = p.stock.shift();
+                await update(ref(db, `products/${pid}`), { stock: p.stock });
+                await update(ref(db, `users/${userNow.uid}`), { credit: credit - Number(p.price) });
+                await push(ref(db, `orders/${userNow.uid}`), {
+                    name: p.name, price: p.price, type: 'auto', status: 'success', details: item, date: new Date().toLocaleString()
+                });
+                await update(ref(db, 'stats'), { totalSales: increment(Number(p.price)) });
+                Swal.fire({ title: 'สำเร็จ!', html: `<div style="background:#f9f9f9; padding:15px; border-radius:10px; font-family:monospace; word-break:break-all;">${item}</div>`, icon: 'success' });
+            }
+        };
+
+        window.buyMultipleByInput = async (pid) => {
+            if(!userNow) return toggleAuth(true, 'login');
+            const qtyInput = document.getElementById(`qty-${pid}`);
+            const qty = Number(qtyInput.value);
+            if(!qty || qty < 1) return Swal.fire('ผิดพลาด', 'กรุณากรอกจำนวนที่ถูกต้อง', 'error');
+
+            const pS = await get(ref(db, `products/${pid}`));
+            const p = pS.val();
+            if(p.type !== 'auto') return;
+
+            const uS = await get(ref(db, `users/${userNow.uid}`));
+            const uData = uS.val();
+            if(!uData) return;
+            const credit = Number(uData.credit || 0);
+            const totalCost = p.price * qty;
+
+            if (!p.stock || p.stock.length < qty) return Swal.fire('ผิดพลาด', 'สินค้าในสต็อกไม่เพียงพอ', 'error');
+            if (credit < totalCost) return Swal.fire('เงินไม่พอ', `ต้องการเงิน ฿${totalCost} แต่มีเพียง ฿${credit}`, 'error');
+
+            const confirm = await Swal.fire({
+                title: 'ยืนยันการซื้อหลายชิ้น?',
+                html: `ซื้อ <b>${p.name}</b> จำนวน ${qty} ชิ้น<br>รวมทั้งสิ้น: <span style="color:orange; font-weight:bold;">฿${totalCost}</span>`,
+                icon: 'warning', showCancelButton: true
+            });
+
+            if(!confirm.isConfirmed) return;
+
+            const items = p.stock.splice(0, qty);
+            await update(ref(db, `products/${pid}`), { stock: p.stock });
+            await update(ref(db, `users/${userNow.uid}`), { credit: credit - totalCost });
+            await push(ref(db, `orders/${userNow.uid}`), {
+                name: `${p.name} (x${qty})`, price: totalCost, type: 'auto', status: 'success',
+                details: items.join('\n'), date: new Date().toLocaleString()
+            });
+            await update(ref(db, 'stats'), { totalSales: increment(totalCost) });
+
+            let listHtml = '<div style="max-height:250px; overflow-y:auto; text-align:left; font-size:0.9rem;">';
+            items.forEach((it, i) => {
+                listHtml += `<div style="background:#f7f7f7; padding:8px; margin-bottom:5px; border-radius:6px; border-left:3px solid var(--primary);">
+                    <small>Item ${i+1}</small><br><code style="color:#333;">${it}</code>
+                </div>`;
+            });
+            listHtml += '</div>';
+            Swal.fire({ title: `ได้รับสินค้า ${qty} ชิ้น`, html: listHtml, icon: 'success', width: '90%' });
+        };
+
+        window.playGacha = async (pid) => {
+            if(!userNow) return toggleAuth(true, 'login');
+            const pS = await get(ref(db, `products/${pid}`));
+            const p = pS.val();
+            if(p.type !== 'gacha') return;
+
+            const uS = await get(ref(db, `users/${userNow.uid}`));
+            const uData = uS.val();
+            if(!uData) return;
+            const credit = Number(uData.credit || 0);
+            if(credit < p.price) return Swal.fire('เงินไม่พอ','กรุณาเติมเงิน','error');
+
+            const winCount = p.gachaRewards ? p.gachaRewards.length : 0;
+            const loseCount = p.gachaLoseCount || 0;
+            const totalStock = winCount + loseCount;
+            if(totalStock === 0) return Swal.fire('ผิดพลาด','สินค้าหมด','error');
+
+            const confirm = await Swal.fire({
+                title: 'สุ่ม Gacha', html: `<b>${p.name}</b><br>ราคา: <span style="color:orange">฿${p.price}</span><br><small>โอกาสได้รางวัลใหญ่: ${(winCount/totalStock*100).toFixed(1)}%</small>`,
+                icon: 'question', showCancelButton: true, confirmButtonText: 'สุ่มเลย!'
+            });
+
+            if(!confirm.isConfirmed) return;
+
+            await update(ref(db, `users/${userNow.uid}`), { credit: credit - Number(p.price) });
+            await update(ref(db, 'stats'), { totalSales: increment(Number(p.price)) });
+
+            const randomIndex = Math.floor(Math.random() * totalStock);
+            let resultText = '', isWin = false;
+
+            if(randomIndex < winCount) {
+                isWin = true;
+                resultText = p.gachaRewards[randomIndex];
+                p.gachaRewards.splice(randomIndex, 1);
+                await update(ref(db, `products/${pid}`), { gachaRewards: p.gachaRewards });
+            } else {
+                await update(ref(db, `products/${pid}`), { gachaLoseCount: loseCount - 1 });
+            }
+
+            await push(ref(db, `orders/${userNow.uid}`), {
+                name: `${p.name} (Gacha)`, price: p.price, type: 'gacha', status: 'success',
+                details: isWin ? resultText : 'เกลือ', date: new Date().toLocaleString()
+            });
+
+            if(isWin) {
+                Swal.fire({ title: 'ยินดีด้วย!', html: `<div class="gacha-result-box"><i class="fas fa-gift" style="font-size:3rem; color:var(--primary);"></i><div style="margin-top:15px; font-size:1.2rem; font-weight:600;">${resultText}</div></div>`, icon: 'success' });
+            } else {
+                Swal.fire({ title: 'เสียใจด้วย...', html: `<div class="gacha-lose-box"><i class="fas fa-sad-tear" style="font-size:3rem; color:#999;"></i><div style="margin-top:15px; color:#666;">คุณไม่ได้รับรางวัล</div></div>`, icon: 'info' });
+            }
+        };
+
+        window.playGachaMultiple = async (pid) => {
+            if(!userNow) return toggleAuth(true, 'login');
+            const qtyInput = document.getElementById(`gqty-${pid}`);
+            const qty = Number(qtyInput.value);
+            if(!qty || qty < 1) return Swal.fire('ผิดพลาด', 'กรุณากรอกจำนวนที่ถูกต้อง', 'error');
+
+            const pS = await get(ref(db, `products/${pid}`));
+            const p = pS.val();
+            if(p.type !== 'gacha') return;
+
+            const uS = await get(ref(db, `users/${userNow.uid}`));
+            const uData = uS.val();
+            if(!uData) return;
+            const credit = Number(uData.credit || 0);
+            const totalCost = p.price * qty;
+
+            const winCount = p.gachaRewards ? p.gachaRewards.length : 0;
+            const loseCount = p.gachaLoseCount || 0;
+            const totalStock = winCount + loseCount;
+
+            if(totalStock < qty) return Swal.fire('ผิดพลาด', 'สินค้าในสต็อกไม่เพียงพอ', 'error');
+            if(credit < totalCost) return Swal.fire('เงินไม่พอ', `ต้องการเงิน ฿${totalCost} แต่มีเพียง ฿${credit}`, 'error');
+
+            const confirm = await Swal.fire({
+                title: 'ยืนยันสุ่ม Gacha หลายครั้ง?',
+                html: `สุ่ม <b>${p.name}</b> จำนวน ${qty} ครั้ง<br>รวมทั้งสิ้น: <span style="color:orange; font-weight:bold;">฿${totalCost}</span>`,
+                icon: 'warning', showCancelButton: true
+            });
+            if(!confirm.isConfirmed) return;
+
+            await update(ref(db, `users/${userNow.uid}`), { credit: credit - totalCost });
+            await update(ref(db, 'stats'), { totalSales: increment(totalCost) });
+
+            let results = [], wins = 0;
+            let currentRewards = [...p.gachaRewards];
+            let currentLoseCount = loseCount;
+            let currentTotal = totalStock;
+
+            for(let i=0; i<qty; i++) {
+                const randomIndex = Math.floor(Math.random() * currentTotal);
+                if(randomIndex < currentRewards.length) {
+                    results.push(currentRewards[randomIndex]);
+                    currentRewards.splice(randomIndex, 1);
+                    wins++;
+                } else {
+                    results.push('เกลือ');
+                    currentLoseCount--;
+                }
+                currentTotal--;
+            }
+
+            await update(ref(db, `products/${pid}`), { gachaRewards: currentRewards, gachaLoseCount: currentLoseCount });
+            await push(ref(db, `orders/${userNow.uid}`), {
+                name: `${p.name} (Gacha x${qty})`, price: totalCost, type: 'gacha', status: 'success',
+                details: results.join('\n'), date: new Date().toLocaleString()
+            });
+
+            let listHtml = '<div style="max-height:300px; overflow-y:auto; text-align:left; font-size:0.9rem;">';
+            results.forEach((it, i) => {
+                let isWinItem = it !== 'เกลือ';
+                listHtml += `<div style="background:${isWinItem ? '#fff5e6' : '#f5f5f5'}; padding:8px; margin-bottom:5px; border-radius:6px; border-left:3px solid ${isWinItem ? 'var(--primary)' : '#ddd'};">
+                    <small>รอบ ${i+1}</small><br><code style="color:#333;">${it}</code>
+                </div>`;
+            });
+            listHtml += '</div>';
+            Swal.fire({ title: `ผลการสุ่ม ${qty} ครั้ง (ได้รางวัล ${wins} ครั้ง)`, html: listHtml, icon: wins > 0 ? 'success' : 'info', width: '90%' });
+        };
+
+        // --- FULL SCREEN MODAL FUNCTIONS ---
+
+        window.closeHistoryModal = () => {
+            const modal = document.getElementById('historyModal');
+            modal.classList.remove('active');
+            setTimeout(() => { modal.style.display = 'none'; }, 300);
+        };
+
+        window.closeTopupModal = () => {
+            const modal = document.getElementById('topupHistoryModal');
+            modal.classList.remove('active');
+            setTimeout(() => { modal.style.display = 'none'; }, 300);
+        };
+
+        window.showHistory = () => {
+            if(!userNow) return toggleAuth(true, 'login');
+            const modal = document.getElementById('historyModal');
+            const content = document.getElementById('historyModalContent');
+            
+            const orders = allOrders[userNow.uid] ? Object.values(allOrders[userNow.uid]) : [];
+            orders.sort((a,b) => new Date(b.date) - new Date(a.date));
+
+            const renderHistory = (searchTerm = '') => {
+                const filtered = orders.filter(o => 
+                    o.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                    o.details.toLowerCase().includes(searchTerm.toLowerCase())
+                );
+                
+                const totalPages = Math.ceil(filtered.length / 10);
+                let currentPage = totalPages;
+
+                const renderPage = (page) => {
+                    const start = (page - 1) * 10;
+                    const pageItems = filtered.slice(start, start + 10);
+                    let h = `<div class="hist-search-box"><input type="text" id="histSearchInput" placeholder="ค้นหาชื่อสินค้าหรือรายละเอียด..." oninput="window.histSearch(this.value)"></div>`;
+                    h += '<div class="history-container">';
+                    
+                    if(pageItems.length === 0) h += '<p style="text-align:center; color:#888; padding:50px;">ไม่พบรายการ</p>';
+                    
+                    pageItems.forEach(o => {
+                        let stCol = o.status === 'success' ? 'green' : (o.status === 'canceled' ? 'red' : 'orange');
+                        let stTxt = o.status === 'success' ? 'สำเร็จ' : (o.status === 'canceled' ? 'ยกเลิก' : 'รอดำเนินการ');
+                        h += `<div class="history-item">
+                            <div class="history-item-header"><span>${o.name}</span><span style="color:${stCol}; font-size:0.75rem;">[${stTxt}]</span></div>
+                            <small style="color:#888; font-size:0.7rem;">${o.date} | ฿${o.price}</small>
+                            <div class="history-item-details">${o.details}</div>
+                        </div>`;
+                    });
+                    h += '</div>';
+                    
+                    if(totalPages > 1) {
+                        h += `<div class="pagination-controls">
+                            <button class="page-arrow ${page === 1 ? 'disabled' : ''}" onclick="window.histNav(${page - 1})"><i class="fas fa-chevron-left"></i></button>
+                            <span style="padding:8px; font-size:0.85rem;">${page} / ${totalPages}</span>
+                            <button class="page-arrow ${page === totalPages ? 'disabled' : ''}" onclick="window.histNav(${page + 1})"><i class="fas fa-chevron-right"></i></button>
+                        </div>`;
+                    }
+                    
+                    content.innerHTML = h;
+                };
+
+                window.histNav = (p) => { currentPage = p; renderPage(p); };
+                window.histSearch = (term) => { renderHistory(term); };
+                
+                renderPage(currentPage);
+            };
+
+            modal.style.display = 'flex';
+            setTimeout(() => { modal.classList.add('active'); }, 10);
+            renderHistory();
+        };
+
+        window.showTopupHistory = () => {
+            if(!userNow) return toggleAuth(true, 'login');
+            const modal = document.getElementById('topupHistoryModal');
+            const content = document.getElementById('topupHistoryModalContent');
+
+            const topups = allTopupHistory[userNow.uid] ? Object.values(allTopupHistory[userNow.uid]) : [];
+            if(topups.length === 0) {
+                content.innerHTML = '<p style="text-align:center; color:#888; padding:50px;">คุณยังไม่มีประวัติการเติมเงิน</p>';
+                modal.style.display = 'flex';
+                setTimeout(() => { modal.classList.add('active'); }, 10);
+                return;
+            }
+            topups.sort((a,b) => new Date(b.date) - new Date(a.date));
+
+            const renderTopupHistory = (searchTerm = '') => {
+                const filtered = topups.filter(t => 
+                    String(t.amount).includes(searchTerm) || 
+                    (t.method && t.method.toLowerCase().includes(searchTerm.toLowerCase()))
+                );
+                
+                const totalPages = Math.ceil(filtered.length / 10);
+                let currentPage = totalPages;
+
+                const renderPage = (page) => {
+                    const start = (page - 1) * 10;
+                    const pageItems = filtered.slice(start, start + 10);
+                    let h = `<div class="hist-search-box"><input type="text" id="topupSearchInput" placeholder="ค้นหาจำนวนเงินหรือช่องทาง..." oninput="window.topupSearch(this.value)"></div>`;
+                    h += '<div class="history-container">';
+                    
+                    if(pageItems.length === 0) h += '<p style="text-align:center; color:#888; padding:50px;">ไม่พบรายการ</p>';
+                    
+                    pageItems.forEach(t => {
+                        let methodLabel = t.method === 'pp' ? 'PromptPay' : 'TrueMoney Wallet';
+                        h += `<div class="topup-history-item">
+                            <div class="topup-history-info">
+                                <h4><i class="fas fa-${t.method === 'pp' ? 'qrcode' : 'wallet'}" style="color:var(--primary); margin-right:5px;"></i> ${methodLabel}</h4>
+                                <small><i class="fas fa-clock" style="margin-right:3px;"></i>${t.date}</small>
+                            </div>
+                            <div class="topup-history-amount">+฿${t.amount}</div>
+                        </div>`;
+                    });
+                    h += '</div>';
+                    
+                    if(totalPages > 1) {
+                        h += `<div class="pagination-controls">
+                            <button class="page-arrow ${page === 1 ? 'disabled' : ''}" onclick="window.topupNav(${page - 1})"><i class="fas fa-chevron-left"></i></button>
+                            <span style="padding:8px; font-size:0.85rem;">${page} / ${totalPages}</span>
+                            <button class="page-arrow ${page === totalPages ? 'disabled' : ''}" onclick="window.topupNav(${page + 1})"><i class="fas fa-chevron-right"></i></button>
+                        </div>`;
+                    }
+                    
+                    content.innerHTML = h;
+                };
+
+                window.topupNav = (p) => { currentPage = p; renderPage(p); };
+                window.topupSearch = (term) => { renderTopupHistory(term); };
+                
+                renderPage(currentPage);
+            };
+
+            modal.style.display = 'flex';
+            setTimeout(() => { modal.classList.add('active'); }, 10);
+            renderTopupHistory();
+        };
+
+        window.showTopup = async () => {
+            if(!userNow) return toggleAuth(true, 'login');
+            const { value: method } = await Swal.fire({
+                title: 'เลือกช่องทางเติมเงิน',
+                html: `<div style="display:grid; grid-template-columns:1fr 1fr; gap:15px;">
+                    <div class="topup-card" onclick="Swal.clickConfirm(); window.payMethod='pp'"><i class="fas fa-qrcode"></i><br>PromptPay</div>
+                    <div class="topup-card" onclick="Swal.clickConfirm(); window.payMethod='tw'"><i class="fas fa-wallet"></i><br>Wallet</div>
+                </div>`,
+                showConfirmButton: false
+            });
+            
+            const methodKey = window.payMethod;
+            let html = methodKey === 'pp' ? 
+                `<img src="${siteSettings.ppQr}" style="width:200px; margin:auto;"><h3 style="margin:10px 0;">${siteSettings.ppName}</h3><p>โอนเงินและแนบสลิป</p>` :
+                `<h2 style="color:var(--primary);">${siteSettings.twPhone}</h2><h3>${siteSettings.twName}</h3><p>โอนผ่าน Wallet และแนบสลิป</p>`;
+
+            const { value: file } = await Swal.fire({
+                title: 'แนบสลิปการโอนเงิน',
+                html: html + `<label style="font-weight:600; margin-top:15px; display:block;">จำนวนเงินที่โอน</label>
+                    <input type="number" id="topupAmount" class="swal2-input" placeholder="กรอกจำนวนเงิน" style="margin:10px 0;">
+                    <label style="font-weight:600; display:block;">แนบรูปสลิป</label>
+                    <input type="file" id="slipInput" accept="image/*" class="swal2-file" onchange="previewSlip(this)">
+                    <img id="slipPreview" class="slip-preview">`,
+                showCancelButton: true, confirmButtonText: 'ส่งข้อมูล',
+                preConfirm: () => {
+                    const input = document.getElementById('slipInput');
+                    const amountInput = document.getElementById('topupAmount');
+                    if(!input.files[0]) return Swal.showValidationMessage('กรุณาเลือกไฟล์สลิป');
+                    if(!amountInput.value || Number(amountInput.value) <= 0) return Swal.showValidationMessage('กรุณากรอกจำนวนเงิน');
+                    return { file: input.files[0], amount: Number(amountInput.value) };
+                }
+            });
+
+            if(file) {
+                const reader = new FileReader();
+                reader.onload = async (e) => {
+                    const uS = await get(ref(db, `users/${userNow.uid}`));
+                    const uData = uS.val();
+                    if(!uData) return Swal.fire('Error', 'User data not found', 'error');
+                    
+                    await push(ref(db, 'slips'), {
+                        uid: userNow.uid, username: uData.username,
+                        img: e.target.result, amount: file.amount, status: 'pending', method: methodKey, date: new Date().toLocaleString()
+                    });
+                    showLivelySuccess('ส่งสลิปแล้ว! รอแอดมินตรวจสอบ');
+                };
+                reader.readAsDataURL(file.file);
+            }
+        };
+
+        window.previewSlip = (input) => {
+            const pre = document.getElementById('slipPreview');
+            if(input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = e => { pre.src = e.target.result; pre.style.display = 'block'; };
+                reader.readAsDataURL(input.files[0]);
+            }
+        };
+
+        window.showRedeem = async () => {
+            if(!userNow) return toggleAuth(true, 'login');
+            const { value: code } = await Swal.fire({ title: 'ใช้งานโค้ด', input: 'text', inputPlaceholder: 'กรอกโค้ดที่นี่' });
+            if(code) {
+                const rS = await get(ref(db, `redeems/${code}`));
+                if(!rS.exists()) return Swal.fire('ผิดพลาด','โค้ดไม่ถูกต้อง','error');
+                const rd = rS.val();
+                if(rd.usedBy && rd.usedBy[userNow.uid]) return Swal.fire('ผิดพลาด','เคยใช้ไปแล้ว','error');
+                if((rd.usedBy ? Object.keys(rd.usedBy).length : 0) >= rd.limit) return Swal.fire('ผิดพลาด','โค้ดเต็มแล้ว','error');
+                await update(ref(db, `redeems/${code}/usedBy`), { [userNow.uid]: true });
+                const uS = await get(ref(db, `users/${userNow.uid}`));
+                const uData = uS.val();
+                if(uData) {
+                    await update(ref(db, `users/${userNow.uid}`), { credit: Number(uData.credit) + Number(rd.amount) });
+                    showLivelySuccess(`รับเครดิตเรียบร้อย ฿${rd.amount}`);
+                }
+            }
+        };
+
+        window.toggleAuth = (show, mode) => {
+            const modal = document.getElementById('authModal');
+            modal.style.display = show ? 'flex' : 'none';
+            if(show) {
+                document.getElementById('atTitle').innerText = mode === 'login' ? 'เข้าสู่ระบบ' : 'สมัครสมาชิก';
+                document.getElementById('atBtn').onclick = () => handleAuth(mode);
+            }
+        };
+
+        async function handleAuth(mode) {
+            const user = document.getElementById('atUser').value.trim();
+            const pass = document.getElementById('atPass').value.trim();
+            if(!user || !pass) return Swal.fire('แจ้งเตือน','กรุณากรอกข้อมูล','warning');
+            const email = user + "@dotfight.com";
+
+            try {
+                if(mode === 'reg') {
+    const u = await createUserWithEmailAndPassword(auth, email, pass);
+    await set(ref(db, `users/${u.user.uid}`), { 
+        username: user, 
+        credit: 0, 
+        role: 'member', 
+        password: pass,
+        registeredAt: new Date().toLocaleString(),
+        lastIp: 'N/A'
+    });
+
+    showLivelySuccess('สมัครสมาชิกสำเร็จ!');
+
+    setTimeout(() => {
+        location.reload();
+    }, 1000);
+
+} else {
+                    await signInWithEmailAndPassword(auth, email, pass);
+                    showLivelySuccess('เข้าสู่ระบบแล้ว');
+                }
+                toggleAuth(false);
+            } catch(e) { Swal.fire('ผิดพลาด', 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง', 'error'); }
+        }
+
+        onAuthStateChanged(auth, async (u) => {
+            userNow = u;
+            const zone = document.getElementById('authZone');
+            const cred = document.getElementById('uTopCredit');
+            
+            if(u) {
+                const uS = await get(ref(db, `users/${u.uid}`));
+                const data = uS.val();
+                
+                if(!data) {
+                    console.log("Ghost account detected - auto fixing.");
+                    await firebaseSignOut(auth);
+                    location.reload(); 
+                    return;
+                }
+
+                if(data.username === SUPER_ADMIN && data.role !== 'admin') await update(ref(db, `users/${u.uid}`), { role: 'admin' });
+
+                cred.style.display = 'block';
+                onValue(ref(db, `users/${u.uid}/credit`), snap => { document.getElementById('cDisplay').innerText = Number(snap.val() || 0).toFixed(2); });
+
+                let adminBtn = data.role === 'admin' ? `<button class="btn btn-admin" onclick="toggleAdmin(true)"><i class="fas fa-shield-alt"></i> แอดมิน <span id="adminBadge" class="notif-badge" style="display:none;">0</span></button>` : '';
+                
+                zone.innerHTML = cred.outerHTML + adminBtn + `
+                <div class="dropdown" id="userDropdown">
+                   <button class="btn btn-logout dropbtn" onclick="toggleDropdown()">เมนู <i class="fas fa-caret-down"></i></button>
+                   <div class="dropdown-content">
+                      <a onclick="showChangePassword(); closeDropdown()"><i class="fas fa-key"></i> เปลี่ยนรหัสผ่าน</a>
+                      <a onclick="openDiscord(); closeDropdown()"><i class="fab fa-discord"></i> Discord</a>
+                      <a onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i> ออกจากระบบ</a>
+                   </div>
+                </div>`;
+                
+                setTimeout(() => {
+                    showAnnouncementIfNeeded();
+                }, 500);
+            } else {
+                cred.style.display = 'none';
+                zone.innerHTML = `<button class="btn btn-login" onclick="toggleAuth(true, 'login')">เข้าสู่ระบบ</button><button class="btn btn-reg" onclick="toggleAuth(true, 'reg')">สมัครสมาชิก</button>`;
+            }
+            syncAdmin();
+        });
+
+        window.toggleDropdown = () => {
+            if(window.innerWidth <= 768) {
+                 Swal.fire({
+                    title: 'เมนูผู้ใช้',
+                    html: `
+                        <div style="display:flex; flex-direction:column; gap:10px;">
+                            <button class="btn btn-edit-sm" style="width:100%; background:linear-gradient(135deg, #667eea 0%, #764ba2 100%);" onclick="showChangePassword(); Swal.close();">
+                                <i class="fas fa-key"></i> เปลี่ยนรหัสผ่าน
+                            </button>
+                            <button class="btn btn-edit-sm" style="width:100%; background:#5865F2;" onclick="openDiscord(); Swal.close();">
+                                <i class="fab fa-discord"></i> Discord
+                            </button>
+                            <button class="btn btn-logout" style="width:100%;" onclick="handleLogout(); Swal.close();">
+                                <i class="fas fa-sign-out-alt"></i> ออกจากระบบ
+                            </button>
+                        </div>
+                    `,
+                    showConfirmButton: false,
+                    showCloseButton: true
+                });
+            } else {
+                document.getElementById('userDropdown').classList.toggle('show');
+            }
+        };
+
+        window.closeDropdown = () => {
+            document.getElementById('userDropdown').classList.remove('show');
+        };
+        window.addEventListener('click', (e) => {
+            if (!e.target.closest('.dropdown')) {
+                document.querySelectorAll('.dropdown.show').forEach(d => d.classList.remove('show'));
+            }
+        });
+
+        window.toggleAdmin = (show) => {
+            document.getElementById('adminPanel').style.display = show ? 'block' : 'none';
+            if(show) syncAdmin();
+        };
+
+        window.showAdminTab = (tab, btn) => {
+            document.querySelectorAll('.admin-content-box').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.admin-menu-btn').forEach(m => m.classList.remove('active'));
+            document.getElementById(tab).classList.add('active');
+            btn.classList.add('active');
+        };
+
+        let userCurrentPage = 1;
+
+        window.viewSlipImage = (url) => {
+            Swal.fire({
+                imageUrl: url,
+                imageAlt: 'Slip Image',
+                showConfirmButton: false,
+                showCloseButton: true,
+                width: '90%',
+                maxWidth: '600px',
+                background: '#fff',
+                padding: '10px'
+            });
+        };
+
+        window.syncAdmin = async () => {
+            if(!userNow) return;
+            const myS = await get(ref(db, `users/${userNow.uid}`));
+            const myData = myS.val();
+            
+            if(!myData || myData.role !== 'admin') return;
+            
+            const isSuperAdmin = myData.username === SUPER_ADMIN;
+
+            // Listen for Slips and Update Badge
+            onValue(ref(db, 'slips'), snap => {
+                const list = document.getElementById('adminSlipList');
+                list.innerHTML = '';
+                let slipCount = 0;
+                if(snap.exists()) {
+                    Object.entries(snap.val()).forEach(([id, s]) => {
+                        if(s.status === 'pending') {
+                            slipCount++;
+                            list.innerHTML += `
+                            <div class="card" style="padding:15px;">
+                                <img src="${s.img}" style="height:150px; object-fit:contain; cursor:pointer;" onclick="viewSlipImage('${s.img}')">
+                                <h3 style="color:var(--primary); margin:10px 0;">จำนวน: ฿${s.amount || '?'}</h3>
+                                <p>ผู้ใช้: ${s.username}</p>
+                                <small>${s.date} | ${s.method === 'pp' ? 'PromptPay' : 'Wallet'}</small>
+                                <div style="display:flex; gap:10px; margin-top:10px;">
+                                    <button class="btn btn-reg" style="flex:1" onclick="approveSlip('${id}','${s.uid}', ${s.amount || 0}, '${s.method || 'pp'}')">เสร็จสิ้น</button>
+                                    <button class="btn btn-logout" style="flex:1" onclick="rejectSlip('${id}')">ยกเลิก</button>
+                                </div>
+                            </div>`;
+                        }
+                    });
+                }
+                
+                // Check manual orders count as well for badge
+                onValue(ref(db, 'manual_orders'), snap2 => {
+                    let manualCount = 0;
+                    if(snap2.exists()) {
+                         Object.values(snap2.val()).forEach(m => { if(m.status === 'pending') manualCount++; });
+                    }
+                    updateAdminBadge(slipCount + manualCount);
+                }, { onlyOnce: true });
+            });
+
+            onValue(ref(db, 'redeems'), snap => {
+                const list = document.getElementById('adminRedeemList');
+                list.innerHTML = '';
+                if(snap.exists()) {
+                    Object.entries(snap.val()).forEach(([code, r]) => {
+                        const usedCount = r.usedBy ? Object.keys(r.usedBy).length : 0;
+                        list.innerHTML += `
+                        <div class="admin-item-row">
+                            <div style="flex:1;">
+                                <b style="font-size:1.1rem;">${code}</b><br>
+                                <span style="color:var(--primary); font-weight:600;">฿${r.amount}</span>
+                            </div>
+                            <div style="text-align:right;">
+                                ใช้ไป: ${usedCount}/${r.limit}
+                            </div>
+                            <button class="btn-del-sm" onclick="removeData('redeems/${code}')"><i class="fas fa-trash"></i></button>
+                        </div>`;
+                    });
+                }
+            });
+
+            onValue(ref(db, 'manual_orders'), snap => {
+                const list = document.getElementById('adminManualList');
+                list.innerHTML = '';
+                if(snap.exists()) {
+                    Object.entries(snap.val()).forEach(([mid, m]) => {
+                        if(m.status === 'pending') {
+                            list.innerHTML += `
+                            <div class="admin-item-row">
+                                <div><b>${m.productName}</b> - โดย: ${m.username}<br><code>${m.details}</code></div>
+                                <div style="display:flex; gap:5px;">
+                                    <button class="btn-edit-sm" onclick="updateManualStatus('${mid}', '${m.uid}', 'success', ${m.price || 0})">เสร็จสิ้น</button>
+                                    <button class="btn-del-sm" onclick="updateManualStatus('${mid}', '${m.uid}', 'canceled', ${m.price || 0})">ยกเลิก</button>
+                                </div>
+                            </div>`;
+                        }
+                    });
+                }
+            });
+
+            const renderUserList = (page) => {
+                const list = document.getElementById('adminUserList');
+                list.innerHTML = '';
+                const search = document.getElementById('userSearch').value.toLowerCase();
+                const usersArr = Object.entries(allUsersData).filter(([uid, u]) => u && u.username && u.username.toLowerCase().includes(search));
+                const totalPages = Math.ceil(usersArr.length / ITEMS_PER_PAGE);
+                const start = (page - 1) * ITEMS_PER_PAGE;
+                const pageUsers = usersArr.slice(start, start + ITEMS_PER_PAGE);
+
+                pageUsers.forEach(([uid, u]) => {
+                    if(!u) return; 
+                    let roleBtn = '';
+                    if(isSuperAdmin && u.username !== SUPER_ADMIN) {
+                        roleBtn = `<button class="btn-edit-sm" onclick="changeRole('${uid}','${u.role === 'admin' ? 'member' : 'admin'}')">${u.role === 'admin' ? 'ปลดแอดมิน' : 'ตั้งเป็นแอดมิน'}</button>`;
+                    }
+                    
+                    let regDateHtml = '';
+                    if(u.registeredAt) {
+                        regDateHtml = `<div class="user-register-date"><i class="fas fa-calendar-alt"></i> สมัครเมื่อ: ${u.registeredAt}</div>`;
+                    } else {
+                        regDateHtml = `<div class="user-register-date" style="color:#aaa;"><i class="fas fa-calendar-alt"></i> ไม่พบข้อมูลวันสมัคร</div>`;
+                    }
+
+                    // Mini History Logic
+                    let miniTopupHtml = '<div style="color:#aaa; font-size:0.8rem;">ไม่มีประวัติ</div>';
+                    let miniOrderHtml = '<div style="color:#aaa; font-size:0.8rem;">ไม่มีประวัติ</div>';
+
+                    // Topups
+                    const userTopups = allTopupHistory[uid] ? Object.values(allTopupHistory[uid]) : [];
+                    userTopups.sort((a,b) => new Date(b.date) - new Date(a.date));
+                    const recentTopups = userTopups.slice(0, 3);
+                    if(recentTopups.length > 0) {
+                        miniTopupHtml = '';
+                        recentTopups.forEach(t => {
+                            miniTopupHtml += `<div class="mini-history-item topup">
+                                <span>+฿${t.amount} (${t.method})</span>
+                                <span style="font-size:0.7rem; color:#888;">${t.date}</span>
+                            </div>`;
+                        });
+                    }
+
+                    // Orders
+                    const userOrders = allOrders[uid] ? Object.values(allOrders[uid]) : [];
+                    userOrders.sort((a,b) => new Date(b.date) - new Date(a.date));
+                    const recentOrders = userOrders.slice(0, 3);
+                    if(recentOrders.length > 0) {
+                        miniOrderHtml = '';
+                        recentOrders.forEach(o => {
+                            miniOrderHtml += `<div class="mini-history-item order">
+                                <span>${o.name} (฿${o.price})</span>
+                                <span style="font-size:0.7rem; color:${o.status === 'success' ? 'green' : 'orange'};">${o.status}</span>
+                            </div>`;
+                        });
+                    }
+
+                    list.innerHTML += `
+                    <div class="admin-item-row" style="flex-direction:column; align-items:flex-start;">
+                        <div class="user-info-box">
+                            <b style="font-size:1.1rem;">${u.username}</b>
+                            <span style="float:right; padding:3px 10px; border-radius:5px; font-size:0.8rem; background:${u.role === 'admin' ? 'var(--primary)' : '#ddd'}; color:${u.role === 'admin' ? 'white' : '#333'};">${u.role}</span>
+                            <br><code>UID: ${uid}</code>
+                            ${regDateHtml}
+                            <div style="font-size:0.8rem; color:#666; margin-top:5px;"><i class="fas fa-map-marker-alt"></i> IP: ${u.lastIp || 'N/A'}</div>
+                        </div>
+                        
+                        <div class="admin-user-details">
+                            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
+                                <div>
+                                    <div class="detail-section-title"><i class="fas fa-wallet"></i> เติมเงินล่าสุด</div>
+                                    ${miniTopupHtml}
+                                </div>
+                                <div>
+                                    <div class="detail-section-title"><i class="fas fa-shopping-bag"></i> ซื้อล่าสุด</div>
+                                    ${miniOrderHtml}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="display:flex; justify-content:space-between; align-items:center; width:100%; margin-top:10px;">
+                            <div>เครดิต: <b style="color:var(--primary);">${Number(u.credit).toFixed(2)}</b></div>
+                            <div style="display:flex; gap:5px;">
+                                ${roleBtn}
+                                <button class="btn-edit-sm" style="background:orange" onclick="editCredit('${uid}')">เติมเงิน</button>
+                                <button class="btn-edit-sm" style="background:#333" onclick="viewUserPassword('${uid}')"><i class="fas fa-eye"></i></button>
+                                ${u.username !== SUPER_ADMIN ? `<button class="btn-del-sm" onclick="removeUser('${uid}')">ลบ</button>` : ''}
+                            </div>
+                        </div>
+                    </div>`;
+                });
+                const pagDiv = document.getElementById('userPagination');
+                pagDiv.innerHTML = '';
+                if(totalPages > 1) pagDiv.innerHTML = `
+                    <button class="page-btn" ${page === 1 ? 'disabled' : ''} onclick="window.navUser(${page - 1})"><i class="fas fa-chevron-left"></i></button>
+                    <span style="padding:8px 15px;">${page} / ${totalPages}</span>
+                    <button class="page-btn" ${page === totalPages ? 'disabled' : ''} onclick="window.navUser(${page + 1})"><i class="fas fa-chevron-right"></i></button>`;
+            };
+
+            window.navUser = (p) => { userCurrentPage = p; renderUserList(p); };
+            onValue(ref(db, 'users'), snap => { allUsersData = snap.val() || {}; renderUserList(userCurrentPage); });
+
+            onValue(ref(db, 'categories'), snap => {
+                const list = document.getElementById('adminCatList');
+                list.innerHTML = '';
+                if(snap.exists()) Object.entries(snap.val()).forEach(([id, c]) => {
+                    list.innerHTML += `
+                    <div class="admin-item-row">
+                        <div style="flex:1;">
+                            <b>${c.name}</b><br>
+                            <small style="color:#888;">${c.img.substring(0, 30)}...</small>
+                        </div>
+                        <div style="display:flex; gap:5px;">
+                            <button class="btn-edit-sm" onclick="editCategory('${id}', '${c.name}', '${c.img}')">แก้ไข</button>
+                            <button class="btn-del-sm" onclick="removeData('categories/${id}')">ลบ</button>
+                        </div>
+                    </div>`;
+                });
+            });
+
+            onValue(ref(db, 'products'), snap => {
+                const list = document.getElementById('adminProdList');
+                list.innerHTML = '';
+                if(snap.exists()) Object.entries(snap.val()).forEach(([id, p]) => {
+                    let typeLabel = p.type === 'gacha' ? '🎲 Gacha' : (p.type === 'auto' ? '⚡ Auto' : '📋 Manual');
+                    
+                    let countInfo = '';
+                    if(p.type === 'auto') countInfo = `Stock: ${p.stock ? p.stock.length : 0}`;
+                    if(p.type === 'gacha') {
+                        const w = p.gachaRewards ? p.gachaRewards.length : 0;
+                        const l = p.gachaLoseCount || 0;
+                        countInfo = `Win: ${w} | Lose: ${l}`;
+                    }
+
+                    let extraBtns = '';
+                    extraBtns += `<button class="btn-edit-sm" onclick="editProductInfo('${id}')"><i class="fas fa-edit"></i> แก้ไข</button>`;
+                    
+                    if(p.type === 'auto') {
+                        extraBtns += `<button class="btn-manage-sm" onclick="restockProduct('${id}')"><i class="fas fa-boxes"></i> เติมสต็อก</button>`;
+                    }
+                    if(p.type === 'gacha') {
+                        extraBtns += `<button class="btn-manage-sm" onclick="manageGacha('${id}')"><i class="fas fa-dice"></i> จัดการ Gacha</button>`;
+                    }
+
+                    list.innerHTML += `
+                    <div class="admin-item-row" style="flex-direction:column; align-items:flex-start;">
+                        <div style="width:100%; display:flex; justify-content:space-between; margin-bottom:5px;">
+                            <div>
+                                <b style="font-size:1.1rem;">${p.name}</b> 
+                                <span style="background:#eee; padding:2px 6px; border-radius:4px; font-size:0.8rem;">${typeLabel}</span>
+                            </div>
+                            <b style="color:var(--primary);">฿${p.price}</b>
+                        </div>
+                        <div style="width:100%; display:flex; justify-content:space-between; align-items:center;">
+                            <small style="color:#666;">${countInfo}</small>
+                            <div style="display:flex; gap:5px;">
+                                ${extraBtns}
+                                <button class="btn-del-sm" onclick="removeData('products/${id}')"><i class="fas fa-trash"></i></button>
+                            </div>
+                        </div>
+                    </div>`;
+                });
+            });
+        };
+
+        window.editCategory = async (id, name, img) => {
+            const { value: formValues } = await Swal.fire({
+                title: 'แก้ไขหมวดหมู่',
+                html: `
+                    <input id="sw-name" class="swal2-input" value="${name}" placeholder="ชื่อหมวดหมู่">
+                    <input id="sw-img" class="swal2-input" value="${img}" placeholder="URL รูปภาพ">
+                `,
+                focusConfirm: false,
+                preConfirm: () => {
+                    return { 
+                        name: document.getElementById('sw-name').value, 
+                        img: document.getElementById('sw-img').value 
+                    };
+                }
+            });
+            if (formValues) {
+                await update(ref(db, `categories/${id}`), formValues);
+                showLivelySuccess('แก้ไขหมวดหมู่แล้ว');
+            }
+        };
+
+        window.editProductInfo = async (id) => {
+            const p = allProducts[id];
+            const { value: formValues } = await Swal.fire({
+                title: 'แก้ไขข้อมูลสินค้า',
+                html: `
+                    <input id="sw-name" class="swal2-input" value="${p.name}" placeholder="ชื่อสินค้า">
+                    <input id="sw-price" class="swal2-input" type="number" value="${p.price}" placeholder="ราคา">
+                    <input id="sw-url" class="swal2-input" value="${p.url || ''}" placeholder="URL รูปภาพ">
+                `,
+                focusConfirm: false,
+                preConfirm: () => {
+                    return { 
+                        name: document.getElementById('sw-name').value, 
+                        price: Number(document.getElementById('sw-price').value),
+                        url: document.getElementById('sw-url').value
+                    };
+                }
+            });
+            if (formValues) {
+                await update(ref(db, `products/${id}`), formValues);
+                showLivelySuccess('แก้ไขข้อมูลสินค้าแล้ว');
+            }
+        };
+
+        window.restockProduct = async (id) => {
+            const p = allProducts[id];
+            const { value: newStockStr } = await Swal.fire({
+                title: 'เติมสต็อกสินค้า',
+                html: `
+                    <p style="font-size:0.9rem; color:#666;">สินค้าปัจจุบัน: ${p.stock ? p.stock.length : 0} ชิ้น</p>
+                    <textarea id="sw-stock" class="swal2-textarea" placeholder="ใส่สต็อกเพิ่มเติม (บรรทัดละชิ้น)"></textarea>
+                `,
+                preConfirm: () => document.getElementById('sw-stock').value
+            });
+            if (newStockStr) {
+                const newItems = newStockStr.split('\n').filter(s => s.trim() !== '');
+                const currentStock = p.stock || [];
+                const updatedStock = [...currentStock, ...newItems];
+                await update(ref(db, `products/${id}`), { stock: updatedStock });
+                showLivelySuccess(`เติมสต็อกแล้ว ${newItems.length} ชิ้น`);
+            }
+        };
+
+        window.manageGacha = async (id) => {
+            const p = allProducts[id];
+            const winCount = p.gachaRewards ? p.gachaRewards.length : 0;
+            const loseCount = p.gachaLoseCount || 0;
+
+            const { value: formValues } = await Swal.fire({
+                title: 'จัดการ Gacha',
+                html: `
+                    <div style="text-align:left; margin-bottom:15px;">
+                        <p>รางวัลใหญ่คงเหลือ: <b style="color:var(--primary)">${winCount}</b> รางวัล</p>
+                        <p>รางวัลเกลือคงเหลือ: <b style="color:#666">${loseCount}</b> รางวัล</p>
+                        <hr>
+                    </div>
+                    <label>เพิ่มรางวัลใหญ่ (บรรทัดละชิ้น)</label>
+                    <textarea id="sw-add-win" class="swal2-textarea" placeholder="ใส่รางวัลใหญ่เพิ่ม"></textarea>
+                    <label>เพิ่มจำนวนเกลือ (ตัวเลข)</label>
+                    <input id="sw-add-lose" type="number" class="swal2-input" placeholder="จำนวนเกลือที่จะเพิ่ม" value="0">
+                `,
+                showCancelButton: true,
+                preConfirm: () => {
+                    return { 
+                        addWin: document.getElementById('sw-add-win').value, 
+                        addLose: Number(document.getElementById('sw-add-lose').value) 
+                    };
+                }
+            });
+
+            if (formValues) {
+                const updates = {};
+                if(formValues.addWin) {
+                    const newWins = formValues.addWin.split('\n').filter(s => s.trim() !== '');
+                    const currentWins = p.gachaRewards || [];
+                    updates.gachaRewards = [...currentWins, ...newWins];
+                }
+                if(formValues.addLose > 0) {
+                    updates.gachaLoseCount = loseCount + formValues.addLose;
+                }
+
+                if(Object.keys(updates).length > 0) {
+                    await update(ref(db, `products/${id}`), updates);
+                    showLivelySuccess('อัปเดต Gacha แล้ว');
+                }
+            }
+        };
+
+        window.viewUserPassword = (uid) => {
+            const u = allUsersData[uid];
+            const pass = u ? (u.password || 'ไม่พบข้อมูลรหัสผ่าน') : 'ไม่พบผู้ใช้';
+            Swal.fire({ title: 'รหัสผ่าน', html: `<div style="background:#f5f5f5; padding:15px; border-radius:10px; font-family:monospace; font-size:1.2rem;">${pass}</div>`, icon: 'info' });
+        };
+
+        window.approveSlip = async (id, uid, amount, method) => {
+            if(!amount || amount <= 0) { 
+                const { value: manualAmount } = await Swal.fire({ title: 'ระบุจำนวนเงิน', input: 'number' }); 
+                if(!manualAmount) return; 
+                amount = Number(manualAmount); 
+            }
+            const uS = await get(ref(db, `users/${uid}`));
+            const uData = uS.val();
+            if(uData){
+                await update(ref(db, `users/${uid}`), { credit: Number(uData.credit) + Number(amount) });
+                await push(ref(db, `topup_history/${uid}`), {
+                    amount: Number(amount),
+                    method: method || 'pp',
+                    date: new Date().toLocaleString(),
+                    status: 'success'
+                });
+            }
+            
+            await remove(ref(db, `slips/${id}`));
+            await update(ref(db, 'stats'), { totalTopups: increment(Number(amount)) });
+            showLivelySuccess(`เติมเงิน ฿${amount} สำเร็จ!`);
+        };
+        
+        window.rejectSlip = (id) => remove(ref(db, `slips/${id}`));
+
+        window.updateManualStatus = async (mid, uid, status, price) => {
+            const mS = await get(ref(db, `manual_orders/${mid}`)); const m = mS.val();
+            const userOrdersS = await get(ref(db, `orders/${uid}`));
+            if(userOrdersS.exists()) {
+                const orders = userOrdersS.val();
+                const orderKey = Object.keys(orders).find(k => orders[k].name === m.productName && orders[k].status === 'pending');
+                if(orderKey) await update(ref(db, `orders/${uid}/${orderKey}`), { status: status });
+            }
+            if(status === 'canceled' && price > 0) {
+                const uS = await get(ref(db, `users/${uid}`));
+                const uData = uS.val();
+                if(uData) await update(ref(db, `users/${uid}`), { credit: Number(uData.credit || 0) + Number(price) });
+            }
+            await remove(ref(db, `manual_orders/${mid}`));
+            showLivelySuccess('อัปเดตสถานะเรียบร้อย');
+        };
+
+        window.changeRole = async (uid, newRole) => { await update(ref(db, `users/${uid}`), { role: newRole }); showLivelySuccess('เปลี่ยนสิทธิ์สำเร็จ'); };
+        window.editCredit = async (uid) => {
+            const { value: amt } = await Swal.fire({ title: 'ปรับเครดิต (บวก/ลบ)', input: 'number' });
+            if(amt) { const uS = await get(ref(db, `users/${uid}`)); const uData = uS.val(); if(uData) {await update(ref(db, `users/${uid}`), { credit: Number(uData.credit) + Number(amt) }); showLivelySuccess('ปรับปรุงเงินแล้ว');} }
+        };
+
+        window.updateSiteSettings = async () => {
+            const data = { 
+                name: document.getElementById('setSiteName').value, 
+                ppQr: document.getElementById('setPpQr').value, 
+                ppName: document.getElementById('setPpName').value, 
+                twPhone: document.getElementById('setTwPhone').value, 
+                twName: document.getElementById('setTwName').value, 
+                adminLink: document.getElementById('setAdminLink').value,
+                discordLink: document.getElementById('setDiscordLink').value,
+                announceImg: document.getElementById('setAnnounceImg').value,
+                banners: [document.getElementById('bn1').value, document.getElementById('bn2').value, document.getElementById('bn3').value, document.getElementById('bn4').value] 
+            };
+            await update(ref(db, 'settings'), data); 
+            showLivelySuccess('บันทึกการตั้งค่าแล้ว');
+        };
+
+        window.addCat = async () => {
+            const name = document.getElementById('acName').value; const img = document.getElementById('acImg').value;
+            if(name && img) { await push(ref(db, 'categories'), { name, img }); showLivelySuccess('เพิ่มหมวดหมู่แล้ว'); }
+        };
+
+        window.addProd = async () => {
+            const cat = document.getElementById('acSel').value; const type = document.getElementById('apType').value; const name = document.getElementById('apName').value; const price = document.getElementById('apPrice').value; const url = document.getElementById('apUrl').value;
+            if(type === 'gacha') {
+                const rewardsStr = document.getElementById('gachaRewards').value; const loseCount = document.getElementById('gachaLoseCount').value; const rewards = rewardsStr.split('\n').filter(s => s.trim() !== '');
+                if(rewards.length === 0) return Swal.fire('ผิดพลาด', 'กรุณาใส่รางวัลใหญ่อย่างน้อย 1 รางวัล', 'error');
+                await push(ref(db, 'products'), { cat, type, name, price, url, gachaRewards: rewards, gachaLoseCount: Number(loseCount || 0) });
+            } else {
+                const stockStr = document.getElementById('apStock').value; let stock = type === 'auto' ? stockStr.split('\n').filter(s => s.trim() !== '') : [];
+                await push(ref(db, 'products'), { cat, type, name, price, url, stock });
+            }
+            showLivelySuccess('เพิ่มสินค้าแล้ว');
+        };
+
+        window.createRedeem = async () => {
+            const code = document.getElementById('rdCode').value; const amount = document.getElementById('rdAmount').value; const limit = document.getElementById('rdLimit').value;
+            if(code && amount && limit) { await set(ref(db, `redeems/${code}`), { amount: Number(amount), limit: Number(limit), usedBy: {} }); showLivelySuccess('สร้างโค้ดแล้ว'); }
+        };
+
+        window.removeData = (path) => { Swal.fire({ title: 'ยืนยันการลบ?', icon: 'warning', showCancelButton: true }).then(r => { if(r.isConfirmed) remove(ref(db, path)); }); };
+        window.removeUser = (uid) => { if(uid === userNow.uid) return Swal.fire('ผิดพลาด','ลบตัวเองไม่ได้','error'); window.removeData(`users/${uid}`); };
+
+        syncStore();
+        startBanner();
+
+    <body>
+
+<h1>สินค้า</h1>
+
+<div id="grid"></div>
+
+<script>
+fetch("https://3cb916d3-8881-49e9-b5af-e016e817f599-00-eybkay35zx30.spock.replit.dev/products")
+  .then(res => res.json())
+  .then(data => {
+    console.log(data);
+
+    const grid = document.getElementById("grid");
+    grid.innerHTML = "";
+
+    Object.keys(data).forEach(key => {
+      const p = data[key];
+
+      grid.innerHTML += `
+        <div style="border:1px solid #ccc; padding:10px; margin:10px;">
+          <img src="${p.url}" width="100"><br>
+          <h3>${p.name}</h3>
+          <p>ราคา: ${p.price}</p>
+          <button onclick="buyItem('${key}')">ซื้อ</button>
+        </div>
+      `;
+    });
+  });
+</script>
+
+</body>
+</html>
